@@ -17,10 +17,11 @@ pub fn world_to_tile(world_pos: &Vec2) -> TilePos {
     )
 }
 
-pub fn tile_center(tile_pos: &TilePos) -> Vec2 {
-    Vec2::new(
-        (tile_pos.0 as f32 + 0.5) * TILE_SIZE.0 - 0.5 * TEXTURE_SIZE.0,
-        (tile_pos.1 as f32 + 0.5) * TILE_SIZE.1 - 0.5 * TEXTURE_SIZE.1,
+pub fn tile_center(Position(vec): &Position) -> Vec3 {
+    Vec3::new(
+        (vec.x as f32 + 0.5) * TILE_SIZE.0 - 0.5 * TEXTURE_SIZE.0,
+        (vec.y as f32 + 0.5) * TILE_SIZE.1 - 0.5 * TEXTURE_SIZE.1,
+        1.,
     )
 }
 

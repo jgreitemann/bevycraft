@@ -1,11 +1,13 @@
 mod camera;
+mod entities;
 mod map;
-mod player;
+mod player_input;
 
 mod prelude {
     pub use crate::camera::*;
+    pub use crate::entities::*;
     pub use crate::map::*;
-    pub use crate::player::*;
+    pub use bevy::math::ivec2;
     pub use bevy::prelude::*;
     pub use bevy_ecs_tilemap::prelude::*;
 }
@@ -23,6 +25,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugin(MapPlugin)
         .add_plugin(CameraPlugin)
-        .add_plugin(PlayerPlugin)
+        .add_plugin(EntityPlugin)
+        .add_system_to_stage(CoreStage::PreUpdate, player_input::player_input)
         .run();
 }
