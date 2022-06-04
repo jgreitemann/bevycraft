@@ -80,13 +80,19 @@ fn spawn_player(mut commands: Commands, texture_atlases: Res<Assets<TextureAtlas
     commands.spawn_bundle(PlayerBundle::new(Position::new(2, 2), &texture_atlases));
 }
 
-fn movement(mut msgs: EventReader<WantsToMove>, mut commands: Commands) {
+fn movement(
+    mut msgs: EventReader<WantsToMove>,
+    mut commands: Commands,
+    mut tile_map_query: TileMapQuery,
+) {
     for WantsToMove {
         entity,
         destination,
     } in msgs.iter()
     {
-        commands.entity(*entity).insert(*destination);
+        if tile_map_query.can_enter_tile(destination) {
+            commands.entity(*entity).insert(*destination);
+        }
     }
 }
 

@@ -1,9 +1,12 @@
 mod map_builder;
 mod mouse;
+mod query_adapter;
 mod texture;
 
 use crate::prelude::*;
 use map_builder::*;
+
+pub use query_adapter::*;
 
 pub const MAP_SIZE: MapSize = MapSize(2, 2);
 pub const CHUNK_SIZE: ChunkSize = ChunkSize(8, 8);
@@ -25,6 +28,12 @@ pub fn tile_center(Position(vec): &Position) -> Vec3 {
         (vec.y as f32 + 0.5) * TILE_SIZE.1 - 0.5 * TEXTURE_SIZE.1,
         1.,
     )
+}
+
+#[derive(Copy, Clone, Component, Debug, Eq, PartialEq)]
+pub enum TileType {
+    Wall,
+    Floor,
 }
 
 pub struct MapPlugin;

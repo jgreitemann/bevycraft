@@ -1,11 +1,5 @@
 use crate::prelude::*;
 
-#[derive(Copy, Clone, Component, Debug, Eq, PartialEq)]
-pub enum TileType {
-    Wall,
-    Floor,
-}
-
 pub struct MapBuilder {
     pub map_data: Vec<TileType>,
 }
