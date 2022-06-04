@@ -46,7 +46,8 @@ impl Plugin for MapPlugin {
             .add_event::<mouse::TileInteraction>()
             .add_system(texture::set_texture_filters_to_nearest)
             .add_system(mouse::mouse_click_tile_interaction)
-            .add_system(mouse::hide_tiles_by_click.after(mouse::mouse_click_tile_interaction));
+            .add_system(mouse::hide_tiles_by_click.after(mouse::mouse_click_tile_interaction))
+            .add_system_to_stage(CoreStage::PostUpdate, sync_tiles);
     }
 }
 
@@ -92,21 +93,15 @@ fn spawn_map_layer(
     let mut map_iter = map_builder.map_data.iter();
 
     layer_builder.for_each_tiles_mut(|_, bundle| {
-        *bundle = map_iter.next().map(|&tile_type| {
-            let index = match tile_type {
-                TileType::Wall => 35,
-                TileType::Floor => 46,
-            };
-            BevycraftTileBundle {
-                tile_type,
-                tilemap_bundle: TileBundle {
-                    tile: Tile {
-                        texture_index: index,
-                        ..default()
-                    },
+        *bundle = map_iter.next().map(|&tile_type| BevycraftTileBundle {
+            tile_type,
+            tilemap_bundle: TileBundle {
+                tile: Tile {
+                    texture_index: lookup_texture_index(tile_type),
                     ..default()
                 },
-            }
+                ..default()
+            },
         });
     });
     assert!(
@@ -132,4 +127,21 @@ fn spawn_map_layer(
             0.0,
         ))
         .insert(GlobalTransform::default());
+}
+
+fn sync_tiles(
+    mut tile_query: Query<(&TileType, &TilePos, &mut Tile), Changed<TileType>>,
+    mut map_query: MapQuery,
+) {
+    for (tile_type, tile_pos, mut tile) in tile_query.iter_mut() {
+        tile.texture_index = lookup_texture_index(*tile_type);
+        map_query.notify_chunk_for_tile(*tile_pos, MAP_ID, MAP_LAYER_ID);
+    }
+}
+
+fn lookup_texture_index(tile_type: TileType) -> u16 {
+    match tile_type {
+        TileType::Wall => 35,
+        TileType::Floor => 46,
+    }
 }

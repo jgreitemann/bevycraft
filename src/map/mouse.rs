@@ -43,13 +43,11 @@ pub fn mouse_click_tile_interaction(
 
 pub fn hide_tiles_by_click(
     mut tile_evr: EventReader<TileInteraction>,
-    mut tile_query: Query<(&TilePos, &mut Tile)>,
-    mut map_query: MapQuery,
+    mut tile_query: Query<(&TilePos, &mut TileType)>,
 ) {
     for TileInteraction(tile_pos) in tile_evr.iter() {
-        if let Some((_, mut tile)) = tile_query.iter_mut().find(|(pos, _)| *pos == tile_pos) {
-            tile.visible = false;
-            map_query.notify_chunk_for_tile(*tile_pos, MAP_ID, MAP_LAYER_ID);
+        if let Some((_, mut tile_type)) = tile_query.iter_mut().find(|(pos, _)| *pos == tile_pos) {
+            *tile_type = TileType::Floor;
         }
     }
 }
