@@ -1,7 +1,9 @@
+mod map_builder;
 mod mouse;
 mod texture;
 
 use crate::prelude::*;
+use map_builder::*;
 
 pub const MAP_SIZE: MapSize = MapSize(2, 2);
 pub const CHUNK_SIZE: ChunkSize = ChunkSize(8, 8);
@@ -39,6 +41,23 @@ impl Plugin for MapPlugin {
     }
 }
 
+#[derive(Bundle, Clone)]
+struct BevycraftTileBundle {
+    tile_type: TileType,
+    #[bundle]
+    tilemap_bundle: TileBundle,
+}
+
+impl TileBundleTrait for BevycraftTileBundle {
+    fn get_tile_pos_mut(&mut self) -> &mut TilePos {
+        self.tilemap_bundle.get_tile_pos_mut()
+    }
+
+    fn get_tile_parent(&mut self) -> &mut TileParent {
+        self.tilemap_bundle.get_tile_parent()
+    }
+}
+
 fn spawn_map_layer(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -60,13 +79,31 @@ fn spawn_map_layer(
         MAP_LAYER_ID,
     );
 
-    layer_builder.set_all(TileBundle {
-        tile: Tile {
-            texture_index: 46,
-            ..default()
-        },
-        ..default()
+    let map_builder = MapBuilder::new();
+    let mut map_iter = map_builder.map_data.iter();
+
+    layer_builder.for_each_tiles_mut(|_, bundle| {
+        *bundle = map_iter.next().map(|&tile_type| {
+            let index = match tile_type {
+                TileType::Wall => 35,
+                TileType::Floor => 46,
+            };
+            BevycraftTileBundle {
+                tile_type,
+                tilemap_bundle: TileBundle {
+                    tile: Tile {
+                        texture_index: index,
+                        ..default()
+                    },
+                    ..default()
+                },
+            }
+        });
     });
+    assert!(
+        map_iter.next().is_none(),
+        "The map builder was not exhaustively consumed by the map."
+    );
 
     // Builds the layer.
     // Note: Once this is called you can no longer edit the layer until a hard sync in bevy.
