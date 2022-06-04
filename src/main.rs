@@ -27,5 +27,6 @@ fn main() {
         .add_plugin(CameraPlugin)
         .add_plugin(EntityPlugin)
         .add_system_to_stage(CoreStage::PreUpdate, player_input::player_input)
+        .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }
