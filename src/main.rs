@@ -10,6 +10,9 @@ mod prelude {
     pub use bevy::math::ivec2;
     pub use bevy::prelude::*;
     pub use bevy_ecs_tilemap::prelude::*;
+    pub use bracket_algorithm_traits::prelude::*;
+    pub use bracket_geometry::prelude::*;
+    pub use bracket_pathfinding::prelude::*;
 }
 
 use prelude::*;

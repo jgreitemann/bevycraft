@@ -8,3 +8,8 @@ edition = "2021"
 [dependencies]
 bevy = "0.7.0"
 bevy_ecs_tilemap = "0.6.0"
+rand = "0.8.5"
+bracket-geometry = "0.8.3"
+bracket-algorithm-traits = "0.8.2"
+bracket-pathfinding = "0.8.4"
+itertools = "0.10.3"

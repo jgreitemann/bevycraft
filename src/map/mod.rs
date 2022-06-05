@@ -8,12 +8,14 @@ use map_builder::*;
 
 pub use query_adapter::*;
 
-pub const MAP_SIZE: MapSize = MapSize(2, 2);
+pub const MAP_SIZE: MapSize = MapSize(10, 6);
 pub const CHUNK_SIZE: ChunkSize = ChunkSize(8, 8);
 pub const TILE_SIZE: TileSize = TileSize(32.0, 32.0);
 pub const TEXTURE_SIZE: TextureSize = TextureSize(512.0, 512.0);
 pub const MAP_ID: u16 = 0;
 pub const MAP_LAYER_ID: u16 = 0;
+pub const MAP_WIDTH: usize = MAP_SIZE.0 as usize * CHUNK_SIZE.0 as usize;
+pub const MAP_HEIGHT: usize = MAP_SIZE.1 as usize * CHUNK_SIZE.1 as usize;
 
 pub fn world_to_tile(world_pos: &Vec2) -> TilePos {
     TilePos(
@@ -70,8 +72,9 @@ impl TileBundleTrait for BevycraftTileBundle {
 
 fn spawn_map_layer(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut map_query: MapQuery,
+    asset_server: Res<AssetServer>,
+    texture_atlases: Res<Assets<TextureAtlas>>,
 ) {
     commands.spawn_bundle(OrthographicCameraBundle::new_2d());
 
@@ -127,6 +130,11 @@ fn spawn_map_layer(
             0.0,
         ))
         .insert(GlobalTransform::default());
+
+    commands.spawn_bundle(PlayerBundle::new(
+        map_builder.player_start,
+        &texture_atlases,
+    ));
 }
 
 fn sync_tiles(

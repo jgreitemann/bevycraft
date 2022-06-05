@@ -5,7 +5,6 @@ pub struct EntityPlugin;
 impl Plugin for EntityPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<WantsToMove>()
-            .add_startup_system(spawn_player)
             .add_system(movement)
             .add_system(avatar_tracks_mob_position.after(movement));
     }
@@ -17,7 +16,7 @@ pub struct Player;
 #[derive(Component, Debug)]
 pub struct Mob;
 
-#[derive(Clone, Copy, Component, Debug)]
+#[derive(Clone, Copy, Component, Debug, Default)]
 pub struct Position(pub IVec2);
 
 impl Position {
@@ -29,6 +28,12 @@ impl Position {
 impl From<TilePos> for Position {
     fn from(tile_pos: TilePos) -> Self {
         Self(IVec2::new(tile_pos.0 as i32, tile_pos.1 as i32))
+    }
+}
+
+impl From<Point> for Position {
+    fn from(p: Point) -> Self {
+        Self(IVec2::new(p.x, p.y))
     }
 }
 
@@ -44,13 +49,19 @@ impl TryFrom<Position> for TilePos {
     }
 }
 
+impl From<Position> for Point {
+    fn from(Position(vec): Position) -> Self {
+        Point::new(vec.x, vec.y)
+    }
+}
+
 pub struct WantsToMove {
     pub entity: Entity,
     pub destination: Position,
 }
 
 #[derive(Bundle)]
-struct PlayerBundle {
+pub struct PlayerBundle {
     player: Player,
     mob: Mob,
     position: Position,
@@ -59,7 +70,7 @@ struct PlayerBundle {
 }
 
 impl PlayerBundle {
-    fn new(position: Position, texture_atlases: &Assets<TextureAtlas>) -> Self {
+    pub fn new(position: Position, texture_atlases: &Assets<TextureAtlas>) -> Self {
         let atlas_handle = texture_atlases.get_handle(texture_atlases.iter().next().unwrap().0);
         let world_pos = tile_center(&position);
         PlayerBundle {
@@ -74,10 +85,6 @@ impl PlayerBundle {
             },
         }
     }
-}
-
-fn spawn_player(mut commands: Commands, texture_atlases: Res<Assets<TextureAtlas>>) {
-    commands.spawn_bundle(PlayerBundle::new(Position::new(2, 2), &texture_atlases));
 }
 
 fn movement(
