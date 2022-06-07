@@ -103,7 +103,9 @@ fn movement(
     }
 }
 
-fn avatar_tracks_mob_position(mut query: Query<(&mut Transform, &Position), With<Mob>>) {
+fn avatar_tracks_mob_position(
+    mut query: Query<(&mut Transform, &Position), (With<Mob>, Changed<Position>)>,
+) {
     for (mut transform, pos) in query.iter_mut() {
         transform.translation = tile_center(pos);
     }
