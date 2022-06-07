@@ -58,8 +58,7 @@ impl MapArchitect for RoomsArchitect {
         self.build_random_rooms(&mut mb, &mut rng);
         self.build_corridors(&mut mb, &mut rng);
         mb.player_start = self.rooms[0].center().into();
-        // FIXME:
-        // mb.amulet_start = mb.find_most_distant().into();
+        mb.amulet_start = mb.find_most_distant().into();
 
         mb.spawn_locations = self
             .rooms

@@ -20,7 +20,7 @@ impl MapBuilder {
     }
 
     fn can_enter_tile(&self, p: Point) -> bool {
-        self.in_bounds(p) && self.is_opaque(self.point2d_to_index(p))
+        self.in_bounds(p) && !self.is_opaque(self.point2d_to_index(p))
     }
 
     fn try_idx(&self, p: Point) -> Option<usize> {
