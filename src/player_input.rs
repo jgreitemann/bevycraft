@@ -6,7 +6,7 @@ pub fn player_input(
     mut msgs: EventWriter<WantsToMove>,
     player_query: Query<(Entity, &Position), With<Player>>,
 ) {
-    let (player_entity, player_pos) = player_query.single();
+    let (player_entity, &Position(player_vec)) = player_query.single();
 
     for event in keyboard_input_events.iter() {
         if let KeyboardInput {
@@ -15,25 +15,23 @@ pub fn player_input(
             ..
         } = event
         {
+            use KeyCode::*;
             match key {
-                KeyCode::A => msgs.send(move_player(player_entity, player_pos, ivec2(-1, 0))),
-                KeyCode::D => msgs.send(move_player(player_entity, player_pos, ivec2(1, 0))),
-                KeyCode::W => msgs.send(move_player(player_entity, player_pos, ivec2(0, 1))),
-                KeyCode::S => msgs.send(move_player(player_entity, player_pos, ivec2(0, -1))),
+                W | A | S | D => {
+                    let delta = match key {
+                        W => ivec2(0, 1),
+                        A => ivec2(-1, 0),
+                        S => ivec2(0, -1),
+                        D => ivec2(1, 0),
+                        _ => unreachable!(),
+                    };
+                    msgs.send(WantsToMove {
+                        entity: player_entity,
+                        destination: Position(player_vec + delta),
+                    });
+                }
                 _ => {}
             }
         }
-    }
-}
-
-fn move_player(
-    player_entity: Entity,
-    &Position(player_vec): &Position,
-    delta: IVec2,
-) -> WantsToMove {
-    let destination = Position(player_vec + delta);
-    WantsToMove {
-        entity: player_entity,
-        destination,
     }
 }
