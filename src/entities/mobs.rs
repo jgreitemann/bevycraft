@@ -4,7 +4,9 @@ pub struct MobPlugin;
 
 impl Plugin for MobPlugin {
     fn build(&self, app: &mut App) {
-        app.add_event::<WantsToMove>().add_system(movement);
+        app.add_event::<WantsToMove>()
+            .add_event::<WantsToAttack>()
+            .add_system(movement);
     }
 }
 
@@ -12,6 +14,7 @@ impl Plugin for MobPlugin {
 struct MobBundle {
     mob: Mob,
     position: Position,
+    health: Health,
     #[bundle]
     sprite_sheet_bundle: SpriteSheetBundle,
 }
@@ -27,6 +30,10 @@ impl MobBundle {
         MobBundle {
             mob: Mob,
             position,
+            health: Health {
+                current: 10,
+                max: 10,
+            },
             sprite_sheet_bundle: SpriteSheetBundle {
                 transform: Transform::from_translation(world_pos),
                 texture_atlas: atlas_handle,
@@ -70,17 +77,26 @@ impl HostileMobBundle {
 }
 
 fn movement(
-    mut msgs: EventReader<WantsToMove>,
+    mut movement_msgs: EventReader<WantsToMove>,
     mut commands: Commands,
     mut tile_map_query: TileMapQuery,
+    mob_query: Query<(Entity, &Position), With<Mob>>,
+    mut attack_msgs: EventWriter<WantsToAttack>,
 ) {
-    for WantsToMove {
+    for &WantsToMove {
         entity,
         destination,
-    } in msgs.iter()
+    } in movement_msgs.iter()
     {
-        if tile_map_query.can_enter_tile(destination) {
-            commands.entity(*entity).insert(*destination);
+        if tile_map_query.can_enter_tile(&destination) {
+            if let Some((mob, _)) = mob_query.iter().find(|(_, pos)| **pos == destination) {
+                attack_msgs.send(WantsToAttack {
+                    attacker: entity,
+                    victim: mob,
+                });
+            } else {
+                commands.entity(entity).insert(destination);
+            }
         }
     }
 }

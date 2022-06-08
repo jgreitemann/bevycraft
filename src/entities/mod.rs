@@ -1,9 +1,12 @@
 mod avatar;
+mod combat;
 mod mobs;
 
 use crate::prelude::*;
-use avatar::*;
 use bevy::app::PluginGroupBuilder;
+
+use avatar::*;
+use combat::*;
 use mobs::*;
 
 pub use mobs::{HostileMobBundle, PlayerBundle};
@@ -14,6 +17,7 @@ impl PluginGroup for EntityPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group
             .add(MobPlugin)
+            .add(CombatPlugin)
             .add_after::<MobPlugin, AvatarPlugin>(AvatarPlugin);
     }
 }
@@ -27,12 +31,41 @@ pub struct Hostile;
 #[derive(Component, Debug)]
 pub struct Mob;
 
+#[derive(Component, Debug)]
+pub struct Health {
+    current: u32,
+    max: u32,
+}
+
+impl Health {
+    pub fn take_damage(&mut self, amount: u32) -> u32 {
+        let damage_dealt = u32::min(self.current, amount);
+        self.current -= damage_dealt;
+        damage_dealt
+    }
+
+    pub fn heal(&mut self, amount: u32) -> u32 {
+        let health_restored = u32::min(self.max - self.current, amount);
+        self.current += health_restored;
+        health_restored
+    }
+
+    pub fn is_dead(&self) -> bool {
+        self.current == 0
+    }
+}
+
 pub struct WantsToMove {
     pub entity: Entity,
     pub destination: Position,
 }
 
-#[derive(Clone, Copy, Component, Debug, Default)]
+pub struct WantsToAttack {
+    pub attacker: Entity,
+    pub victim: Entity,
+}
+
+#[derive(Clone, Copy, Component, Debug, Default, PartialEq)]
 pub struct Position(pub IVec2);
 
 impl Position {
