@@ -131,10 +131,16 @@ fn spawn_map_layer(
         ))
         .insert(GlobalTransform::default());
 
+    // Spawn the player
     commands.spawn_bundle(PlayerBundle::new(
         map_builder.player_start,
         &texture_atlases,
     ));
+
+    // Spawn monsters
+    for spawn_location in map_builder.spawn_locations {
+        commands.spawn_bundle(HostileMobBundle::new(spawn_location, &texture_atlases));
+    }
 }
 
 fn sync_tiles(
