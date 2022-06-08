@@ -16,10 +16,10 @@ pub fn player_input(
         } = event
         {
             match key {
-                KeyCode::Left => msgs.send(move_player(player_entity, player_pos, ivec2(-1, 0))),
-                KeyCode::Right => msgs.send(move_player(player_entity, player_pos, ivec2(1, 0))),
-                KeyCode::Up => msgs.send(move_player(player_entity, player_pos, ivec2(0, 1))),
-                KeyCode::Down => msgs.send(move_player(player_entity, player_pos, ivec2(0, -1))),
+                KeyCode::A => msgs.send(move_player(player_entity, player_pos, ivec2(-1, 0))),
+                KeyCode::D => msgs.send(move_player(player_entity, player_pos, ivec2(1, 0))),
+                KeyCode::W => msgs.send(move_player(player_entity, player_pos, ivec2(0, 1))),
+                KeyCode::S => msgs.send(move_player(player_entity, player_pos, ivec2(0, -1))),
                 _ => {}
             }
         }
