@@ -8,6 +8,7 @@ mod prelude {
     pub use crate::camera::*;
     pub use crate::entities::*;
     pub use crate::map::*;
+    pub use crate::player_input::*;
     pub use crate::turn_state::*;
     pub use bevy::math::ivec2;
     pub use bevy::prelude::*;
@@ -29,14 +30,11 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(PlayerInputPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(CameraPlugin)
         .add_plugins(EntityPlugins)
         .add_plugin(TurnStatePlugin)
-        .add_system_to_stage(
-            CoreStage::PreUpdate,
-            player_input::player_input.run_in_state(TurnState::AwaitingInput),
-        )
         .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }

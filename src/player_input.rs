@@ -1,7 +1,18 @@
 use crate::prelude::*;
 use bevy::input::{keyboard::KeyboardInput, ElementState};
 
-pub fn player_input(
+pub struct PlayerInputPlugin;
+
+impl Plugin for PlayerInputPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_to_stage(
+            CoreStage::PreUpdate,
+            player_input.run_in_state(TurnState::AwaitingInput),
+        );
+    }
+}
+
+fn player_input(
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut msgs: EventWriter<WantsToMove>,
     player_query: Query<(Entity, &Position), With<Player>>,
