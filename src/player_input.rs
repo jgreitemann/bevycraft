@@ -5,6 +5,7 @@ pub fn player_input(
     mut keyboard_input_events: EventReader<KeyboardInput>,
     mut msgs: EventWriter<WantsToMove>,
     player_query: Query<(Entity, &Position), With<Player>>,
+    mut commands: Commands,
 ) {
     let (player_entity, &Position(player_vec)) = player_query.single();
 
@@ -32,6 +33,8 @@ pub fn player_input(
                 }
                 _ => {}
             }
+
+            commands.insert_resource(NextState(TurnState::PlayerTurn));
         }
     }
 }

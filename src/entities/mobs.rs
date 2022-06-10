@@ -6,7 +6,7 @@ impl Plugin for MobPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<WantsToMove>()
             .add_event::<WantsToAttack>()
-            .add_system(movement);
+            .add_system(movement.run_not_in_state(TurnState::AwaitingInput));
     }
 }
 
