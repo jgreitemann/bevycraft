@@ -6,7 +6,10 @@ impl Plugin for MobPlugin {
     fn build(&self, app: &mut App) {
         app.add_event::<WantsToMove>()
             .add_event::<WantsToAttack>()
-            .add_system(movement.run_not_in_state(TurnState::AwaitingInput));
+            .add_system_to_stage(
+                CoreStage::PreUpdate,
+                movement.run_not_in_state(TurnState::AwaitingInput),
+            );
     }
 }
 
@@ -22,6 +25,7 @@ struct MobBundle {
 impl MobBundle {
     pub fn new(
         position: Position,
+        health: Health,
         texture_index: usize,
         texture_atlases: &Assets<TextureAtlas>,
     ) -> Self {
@@ -30,10 +34,7 @@ impl MobBundle {
         MobBundle {
             mob: Mob,
             position,
-            health: Health {
-                current: 10,
-                max: 10,
-            },
+            health,
             sprite_sheet_bundle: SpriteSheetBundle {
                 transform: Transform::from_translation(world_pos),
                 texture_atlas: atlas_handle,
@@ -55,7 +56,7 @@ impl PlayerBundle {
     pub fn new(position: Position, texture_atlases: &Assets<TextureAtlas>) -> Self {
         PlayerBundle {
             player: Player,
-            mob_bundle: MobBundle::new(position, 64, texture_atlases),
+            mob_bundle: MobBundle::new(position, Health::new(10), 64, texture_atlases),
         }
     }
 }
@@ -63,6 +64,7 @@ impl PlayerBundle {
 #[derive(Bundle)]
 pub struct HostileMobBundle {
     hostile: Hostile,
+    chasing: ChasingPlayer,
     #[bundle]
     mob_bundle: MobBundle,
 }
@@ -71,7 +73,8 @@ impl HostileMobBundle {
     pub fn new(position: Position, texture_atlases: &Assets<TextureAtlas>) -> Self {
         HostileMobBundle {
             hostile: Hostile,
-            mob_bundle: MobBundle::new(position, 103, texture_atlases),
+            chasing: ChasingPlayer,
+            mob_bundle: MobBundle::new(position, Health::new(1), 103, texture_atlases),
         }
     }
 }

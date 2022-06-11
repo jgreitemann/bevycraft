@@ -4,7 +4,7 @@ pub struct AvatarPlugin;
 
 impl Plugin for AvatarPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(avatar_tracks_mob_position)
+        app.add_system_to_stage(CoreStage::PostUpdate, avatar_tracks_mob_position)
             .add_system(avatar_animation);
     }
 }

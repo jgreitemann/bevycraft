@@ -1,3 +1,4 @@
+mod ai;
 mod avatar;
 mod combat;
 mod mobs;
@@ -5,6 +6,7 @@ mod mobs;
 use crate::prelude::*;
 use bevy::app::PluginGroupBuilder;
 
+use ai::*;
 use avatar::*;
 use combat::*;
 use mobs::*;
@@ -16,9 +18,10 @@ pub struct EntityPlugins;
 impl PluginGroup for EntityPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group
+            .add(AiPlugin)
             .add(MobPlugin)
             .add(CombatPlugin)
-            .add_after::<MobPlugin, AvatarPlugin>(AvatarPlugin);
+            .add(AvatarPlugin);
     }
 }
 
@@ -38,6 +41,13 @@ pub struct Health {
 }
 
 impl Health {
+    pub fn new(amount: u32) -> Self {
+        Health {
+            current: amount,
+            max: amount,
+        }
+    }
+
     pub fn take_damage(&mut self, amount: u32) -> u32 {
         let damage_dealt = u32::min(self.current, amount);
         self.current -= damage_dealt;
@@ -59,11 +69,16 @@ impl Health {
     }
 }
 
+#[derive(Component, Debug)]
+pub struct ChasingPlayer;
+
+#[derive(Debug)]
 pub struct WantsToMove {
     pub entity: Entity,
     pub destination: Position,
 }
 
+#[derive(Debug)]
 pub struct WantsToAttack {
     pub attacker: Entity,
     pub victim: Entity,

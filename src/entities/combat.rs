@@ -4,7 +4,8 @@ pub struct CombatPlugin;
 
 impl Plugin for CombatPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(combat_damage).add_system(kill_mobs);
+        app.add_system(combat_damage)
+            .add_system_to_stage(CoreStage::Last, kill_mobs);
     }
 }
 
