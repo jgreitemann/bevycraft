@@ -21,6 +21,7 @@ mod prelude {
     pub use iyes_loopless::prelude::*;
 }
 
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use prelude::*;
 
 fn main() {
@@ -32,6 +33,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(CameraPlugin)
