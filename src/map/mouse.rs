@@ -7,7 +7,7 @@ pub fn mouse_click_tile_interaction(
     mut mousebtn_evr: EventReader<MouseButtonInput>,
     mut tile_evw: EventWriter<TileInteraction>,
     windows: Res<Windows>,
-    q_camera: Query<(&Camera, &GlobalTransform)>,
+    q_camera: Query<(&Camera, &GlobalTransform), With<TracksPlayer>>,
 ) {
     use bevy::input::ElementState;
 

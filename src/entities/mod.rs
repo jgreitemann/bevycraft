@@ -53,6 +53,10 @@ impl Health {
     pub fn is_dead(&self) -> bool {
         self.current == 0
     }
+
+    pub fn hitpoints(&self) -> u32 {
+        self.current
+    }
 }
 
 pub struct WantsToMove {

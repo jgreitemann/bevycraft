@@ -1,5 +1,6 @@
 mod camera;
 mod entities;
+mod hud;
 mod map;
 mod player_input;
 mod turn_state;
@@ -7,6 +8,7 @@ mod turn_state;
 mod prelude {
     pub use crate::camera::*;
     pub use crate::entities::*;
+    pub use crate::hud::*;
     pub use crate::map::*;
     pub use crate::player_input::*;
     pub use crate::turn_state::*;
@@ -35,6 +37,7 @@ fn main() {
         .add_plugin(CameraPlugin)
         .add_plugins(EntityPlugins)
         .add_plugin(TurnStatePlugin)
+        .add_plugin(HudPlugin)
         .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }

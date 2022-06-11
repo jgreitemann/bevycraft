@@ -76,8 +76,6 @@ fn spawn_map_layer(
     asset_server: Res<AssetServer>,
     texture_atlases: Res<Assets<TextureAtlas>>,
 ) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
-
     let texture_handle = asset_server.load("dungeonfont.png");
 
     // Create map entity and component:

@@ -1,6 +1,9 @@
 use crate::prelude::*;
 use bevy::{input::Input, render::camera::Camera};
 
+#[derive(Component)]
+pub struct TracksPlayer;
+
 pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
@@ -12,12 +15,14 @@ impl Plugin for CameraPlugin {
 }
 
 fn setup(mut commands: Commands) {
-    commands.spawn_bundle(OrthographicCameraBundle::new_2d());
+    commands
+        .spawn_bundle(OrthographicCameraBundle::new_2d())
+        .insert(TracksPlayer);
 }
 
 fn zooming(
     keyboard_input: Res<Input<KeyCode>>,
-    mut query: Query<&mut OrthographicProjection, With<Camera>>,
+    mut query: Query<&mut OrthographicProjection, (With<Camera>, With<TracksPlayer>)>,
 ) {
     for mut ortho in query.iter_mut() {
         if keyboard_input.pressed(KeyCode::Z) {
@@ -36,7 +41,7 @@ fn zooming(
 
 fn track_player_avatar(
     player_query: Query<&Transform, (With<Player>, Changed<Transform>)>,
-    mut camera_query: Query<&mut Transform, (With<Camera>, Without<Player>)>,
+    mut camera_query: Query<&mut Transform, (With<Camera>, With<TracksPlayer>, Without<Player>)>,
 ) {
     if let Some(new_player_pos) = player_query
         .iter()
