@@ -42,6 +42,7 @@ fn player_input(
                         destination: Position(player_vec + delta),
                     });
                 }
+                X | Z => continue,
                 _ => {}
             }
 
