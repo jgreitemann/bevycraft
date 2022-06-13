@@ -23,6 +23,10 @@
         canvas {
             display: block;
         }
+
+        canvas:focus {
+            outline: none;
+        }
     </style>
 </head>
 
@@ -42,6 +46,10 @@
             e.preventDefault();
             e.stopPropagation();
         });
+
+        document.body.addEventListener("DOMNodeInserted", function (ev) {
+            document.getElementsByTagName("canvas")[0].focus();
+        }, false);
     </script>
 </body>
 
