@@ -36,12 +36,14 @@ fn avatar_animation(
     for (entity, mut animation, mut transform) in query.iter_mut() {
         let before = animation.timer.percent_left();
         animation.timer.tick(delta_t);
-        let after = animation.timer.percent_left();
-        let delta_v = animation.destination - transform.translation;
-        transform.translation += (before - after) / before * delta_v;
 
         if animation.timer.finished() {
+            transform.translation = animation.destination;
             commands.entity(entity).remove::<AvatarAnimation>();
+        } else {
+            let after = animation.timer.percent_left();
+            let delta_v = animation.destination - transform.translation;
+            transform.translation += (before - after) / before * delta_v;
         }
     }
 }
