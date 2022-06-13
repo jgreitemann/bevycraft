@@ -11,12 +11,21 @@
     <style>
         body,
         html {
+            display: flex;
             margin: 0;
             padding: 0;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            background-color: black;
         }
 
         canvas {
             display: block;
+        }
+
+        canvas:focus {
+            outline: none;
         }
     </style>
 </head>
@@ -37,6 +46,10 @@
             e.preventDefault();
             e.stopPropagation();
         });
+
+        document.body.addEventListener("DOMNodeInserted", function (ev) {
+            document.getElementsByTagName("canvas")[0].focus();
+        }, false);
     </script>
 </body>
 
