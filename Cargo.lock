@@ -782,6 +782,7 @@ dependencies = [
  "bracket-algorithm-traits",
  "bracket-geometry",
  "bracket-pathfinding",
+ "console_error_panic_hook",
  "itertools",
  "iyes_loopless",
  "rand",
