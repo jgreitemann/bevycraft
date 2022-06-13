@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 bevy = "0.7.0"
-bevy_ecs_tilemap = "0.6.0"
+bevy_ecs_tilemap = { version = "0.6.0", features = ["atlas"] }
 iyes_loopless = "0.5.1"
 rand = "0.8.5"
 bracket-geometry = "0.8.3"
