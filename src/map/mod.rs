@@ -142,7 +142,7 @@ fn spawn_map_layer(
 }
 
 fn sync_tiles(
-    mut tile_query: Query<(&TileType, &TilePos, &mut Tile), Changed<TileType>>,
+    mut tile_query: Query<(&TileType, &TilePos, &mut Tile), Or<(Changed<TileType>, Changed<Tile>)>>,
     mut map_query: MapQuery,
 ) {
     for (tile_type, tile_pos, mut tile) in tile_query.iter_mut() {

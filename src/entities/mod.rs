@@ -1,6 +1,7 @@
 mod ai;
 mod avatar;
 mod combat;
+mod fov;
 mod mobs;
 
 use crate::prelude::*;
@@ -9,8 +10,10 @@ use bevy::app::PluginGroupBuilder;
 use ai::*;
 use avatar::*;
 use combat::*;
+use fov::*;
 use mobs::*;
 
+pub use fov::FieldOfView;
 pub use mobs::{HostileMobBundle, PlayerBundle};
 
 pub struct EntityPlugins;
@@ -21,6 +24,7 @@ impl PluginGroup for EntityPlugins {
             .add(AiPlugin)
             .add(MobPlugin)
             .add(CombatPlugin)
+            .add(FieldOfViewPlugin)
             .add(AvatarPlugin);
     }
 }

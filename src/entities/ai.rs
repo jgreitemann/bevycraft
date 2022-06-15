@@ -12,7 +12,7 @@ impl Plugin for AiPlugin {
 }
 
 pub fn chasing(
-    movers: Query<(Entity, &Position), With<ChasingPlayer>>,
+    movers: Query<(Entity, &Position, &FieldOfView), With<ChasingPlayer>>,
     player: Query<&Position, With<Player>>,
     map_query: TileMapQuery,
     mut msgs: EventWriter<WantsToMove>,
@@ -24,20 +24,23 @@ pub fn chasing(
     let search_targets = vec![player_idx];
     let dijkstra_map = DijkstraMap::new(MAP_WIDTH, MAP_HEIGHT, &search_targets, &map, 1024.0);
 
-    movers.iter().for_each(|(entity, &pos)| {
-        let idx = map.point2d_to_index(pos.into());
-        if let Some(destination) = DijkstraMap::find_lowest_exit(&dijkstra_map, idx, &map) {
-            let distance = DistanceAlg::Pythagoras.distance2d(pos.into(), player_pos.into());
-            let destination = if distance > 1.2 {
-                map.index_to_point2d(destination).into()
-            } else {
-                player_pos
-            };
+    movers
+        .iter()
+        .filter(|&(_, _, fov)| fov.can_see(player_pos))
+        .for_each(|(entity, &pos, _)| {
+            let idx = map.point2d_to_index(pos.into());
+            if let Some(destination) = DijkstraMap::find_lowest_exit(&dijkstra_map, idx, &map) {
+                let distance = DistanceAlg::Pythagoras.distance2d(pos.into(), player_pos.into());
+                let destination = if distance > 1.2 {
+                    map.index_to_point2d(destination).into()
+                } else {
+                    player_pos
+                };
 
-            msgs.send(WantsToMove {
-                entity,
-                destination,
-            });
-        }
-    });
+                msgs.send(WantsToMove {
+                    entity,
+                    destination,
+                });
+            }
+        });
 }
