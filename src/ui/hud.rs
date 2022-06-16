@@ -1,3 +1,4 @@
+use super::UiStyles;
 use crate::prelude::*;
 use bevy::diagnostic::{Diagnostics, FrameTimeDiagnosticsPlugin};
 
@@ -5,7 +6,7 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_ui)
+        app.add_startup_system(setup_hud)
             .add_system(update_fps_hud)
             .add_system(update_health_hud);
     }
@@ -17,12 +18,7 @@ struct FpsText;
 #[derive(Component)]
 struct PlayerHealthText;
 
-fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    let style = TextStyle {
-        font: asset_server.load("PixeloidSans.ttf"),
-        font_size: 18.0,
-        color: Color::WHITE,
-    };
+fn setup_hud(mut commands: Commands, styles: Res<UiStyles>) {
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -42,11 +38,11 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         sections: vec![
                             TextSection {
                                 value: "FPS: ".to_string(),
-                                style: style.clone(),
+                                style: styles.text(),
                             },
                             TextSection {
                                 value: String::new(),
-                                style: style.clone(),
+                                style: styles.text(),
                             },
                         ],
                         alignment: Default::default(),
@@ -60,11 +56,11 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
                         sections: vec![
                             TextSection {
                                 value: "Player Health: ".to_string(),
-                                style: style.clone(),
+                                style: styles.text(),
                             },
                             TextSection {
                                 value: String::new(),
-                                style: style.clone(),
+                                style: styles.text(),
                             },
                         ],
                         alignment: Default::default(),
