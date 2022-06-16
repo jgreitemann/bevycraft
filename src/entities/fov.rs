@@ -61,6 +61,7 @@ fn update_tile_visibility(
     if let Some(player_fov) = player_fov_query.iter().next() {
         for (&tile_pos, mut tile) in tile_query.iter_mut() {
             tile.color = if player_fov.can_see(tile_pos.into()) {
+                tile.visible = true;
                 Color::WHITE
             } else {
                 Color::GRAY

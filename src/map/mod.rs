@@ -43,6 +43,7 @@ pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
+            .insert_resource(ClearColor(Color::BLACK))
             .add_startup_system_to_stage(StartupStage::PreStartup, texture::build_texture_atlases)
             .add_startup_system(spawn_map_layer)
             .add_event::<mouse::TileInteraction>()
@@ -99,6 +100,7 @@ fn spawn_map_layer(
             tilemap_bundle: TileBundle {
                 tile: Tile {
                     texture_index: lookup_texture_index(tile_type),
+                    visible: false,
                     ..default()
                 },
                 ..default()
