@@ -1,3 +1,4 @@
+mod automata;
 mod rooms;
 
 use crate::prelude::*;
@@ -16,7 +17,8 @@ pub struct MapBuilder {
 
 impl MapBuilder {
     pub fn new() -> Self {
-        rooms::RoomsArchitect::default().architect()
+        // rooms::RoomsArchitect::default().architect()
+        automata::CellularAutomataArchitect::default().architect()
     }
 
     fn can_enter_tile(&self, p: Point) -> bool {
