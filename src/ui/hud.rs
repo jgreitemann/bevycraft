@@ -23,7 +23,6 @@ fn setup_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
         font_size: 18.0,
         color: Color::WHITE,
     };
-    commands.spawn_bundle(UiCameraBundle::default());
     commands
         .spawn_bundle(NodeBundle {
             style: Style {

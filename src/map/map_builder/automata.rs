@@ -31,7 +31,7 @@ impl CellularAutomataArchitect {
     fn iteration(&mut self, mb: &mut MapBuilder) {
         let mut new_tiles = mb.map_data.clone();
 
-        for (idx, mut new_tile) in new_tiles.iter_mut().enumerate() {
+        for (idx, new_tile) in new_tiles.iter_mut().enumerate() {
             *new_tile = match self.count_neighbors(&mb.index_to_point2d(idx), &mb) {
                 0 => TileType::Wall,
                 n if (1..=4).contains(&n) => TileType::Floor,
