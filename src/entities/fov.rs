@@ -70,11 +70,22 @@ fn update_tile_visibility(
 }
 
 fn update_mob_visibility(
-    player_fov_query: Query<&FieldOfView, (With<Player>, Changed<FieldOfView>)>,
-    mut mob_query: Query<(&mut Visibility, &Position), With<Hostile>>,
+    player_fov_query: Query<(&FieldOfView, ChangeTrackers<FieldOfView>), With<Player>>,
+    mut mob_query: Query<(&mut Visibility, &Position, ChangeTrackers<Position>), With<Hostile>>,
 ) {
-    if let Some(player_fov) = player_fov_query.iter().next() {
-        for (mut visibility, &pos) in mob_query.iter_mut() {
+    let (player_fov, player_fov_tracker) = player_fov_query.single();
+
+    if player_fov_tracker.is_changed() {
+        // Player FoV changed, so all mobs need to update their visibility.
+        for (mut visibility, &pos, _) in mob_query.iter_mut() {
+            visibility.is_visible = player_fov.can_see(pos);
+        }
+    } else {
+        // Only mobs which moved need to update their visibility.
+        for (mut visibility, &pos, _) in mob_query
+            .iter_mut()
+            .filter(|(_, _, pos_tracker)| pos_tracker.is_changed())
+        {
             visibility.is_visible = player_fov.can_see(pos);
         }
     }
