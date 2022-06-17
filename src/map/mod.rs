@@ -50,8 +50,16 @@ impl Plugin for MapPlugin {
                 spawn_map_layer.run_on_event::<ResetGame>(),
             )
             .add_event::<mouse::TileInteraction>()
-            .add_system(mouse::mouse_click_tile_interaction)
-            .add_system(mouse::hide_tiles_by_click.after(mouse::mouse_click_tile_interaction))
+            .add_system(
+                mouse::mouse_click_tile_interaction
+                    .run_in_state(TurnState::AwaitingInput)
+                    .label("mouse_click_tile_interaction"),
+            )
+            .add_system(
+                mouse::hide_tiles_by_click
+                    .run_in_state(TurnState::AwaitingInput)
+                    .after("mouse_click_tile_interaction"),
+            )
             .add_system_to_stage(CoreStage::PostUpdate, sync_tiles);
     }
 }

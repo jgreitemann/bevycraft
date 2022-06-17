@@ -15,7 +15,7 @@ pub fn mouse_click_tile_interaction(
 
     for ev in mousebtn_evr.iter() {
         match ev.state {
-            ElementState::Released => {
+            ElementState::Pressed => {
                 let window = windows.get_primary().unwrap();
                 if let Some(screen_pos) = window.cursor_position() {
                     // get the size of the window
