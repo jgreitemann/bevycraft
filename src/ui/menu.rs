@@ -6,7 +6,7 @@ use bevy_ui_navigation::{
     NavRequestSystem,
 };
 
-const BACKGROUND: Color = Color::rgba(0.1, 0.1, 0.1, 0.95);
+const BACKGROUND: Color = Color::rgba(0.1, 0.1, 0.1, 0.90);
 const NORMAL_BUTTON: Color = Color::rgb(0.2, 0.2, 0.2);
 const HOVERED_BUTTON: Color = Color::rgb(0.35, 0.35, 0.35);
 const PRESSED_BUTTON: Color = Color::rgb(0.45, 0.75, 0.45);

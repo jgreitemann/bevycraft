@@ -86,7 +86,7 @@ impl TileBundleTrait for BevycraftTileBundle {
 fn spawn_map_layer(
     mut commands: Commands,
     mut map_query: MapQuery,
-    entity_query: Query<Entity, With<Mob>>,
+    entity_query: Query<Entity, Or<(With<Mob>, With<Item>)>>,
     asset_server: Res<AssetServer>,
     texture_atlas: Res<DefaultTextureAtlas>,
 ) {
@@ -163,6 +163,12 @@ fn spawn_map_layer(
             texture_atlas.as_ref(),
         ));
     }
+
+    // Spawn the amulet
+    commands.spawn_bundle(AmuletBundle::new(
+        map_builder.amulet_start,
+        texture_atlas.as_ref(),
+    ));
 }
 
 fn sync_tiles(

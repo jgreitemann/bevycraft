@@ -8,7 +8,7 @@ impl Plugin for FieldOfViewPlugin {
         app.add_system(update_fov_after_mob_movement)
             .add_system(update_fov_after_tile_type_changed)
             .add_system_to_stage(CoreStage::PostUpdate, update_tile_visibility)
-            .add_system_to_stage(CoreStage::PostUpdate, update_mob_visibility);
+            .add_system_to_stage(CoreStage::PostUpdate, update_entity_visibility);
     }
 }
 
@@ -70,20 +70,23 @@ fn update_tile_visibility(
     }
 }
 
-fn update_mob_visibility(
+fn update_entity_visibility(
     player_fov_query: Query<(&FieldOfView, ChangeTrackers<FieldOfView>), With<Player>>,
-    mut mob_query: Query<(&mut Visibility, &Position, ChangeTrackers<Position>), With<Hostile>>,
+    mut entity_query: Query<
+        (&mut Visibility, &Position, ChangeTrackers<Position>),
+        Or<(With<Hostile>, With<Item>)>,
+    >,
 ) {
     let (player_fov, player_fov_tracker) = player_fov_query.single();
 
     if player_fov_tracker.is_changed() {
-        // Player FoV changed, so all mobs need to update their visibility.
-        for (mut visibility, &pos, _) in mob_query.iter_mut() {
+        // Player FoV changed, so all entities need to update their visibility.
+        for (mut visibility, &pos, _) in entity_query.iter_mut() {
             visibility.is_visible = player_fov.can_see(pos);
         }
     } else {
         // Only mobs which moved need to update their visibility.
-        for (mut visibility, &pos, _) in mob_query
+        for (mut visibility, &pos, _) in entity_query
             .iter_mut()
             .filter(|(_, _, pos_tracker)| pos_tracker.is_changed())
         {
