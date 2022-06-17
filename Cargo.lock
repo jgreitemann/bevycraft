@@ -194,6 +194,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy-ui-navigation"
+version = "0.18.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "311a3f047abfad6bdb8193fd2371d8cf11d6af32df3486376daf8f6f06fefdaa"
+dependencies = [
+ "bevy",
+ "non-empty-vec",
+]
+
+[[package]]
 name = "bevy_animation"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -778,6 +788,7 @@ name = "bevycraft"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "bevy-ui-navigation",
  "bevy_ecs_tilemap",
  "bracket-algorithm-traits",
  "bracket-geometry",
@@ -2159,6 +2170,12 @@ dependencies = [
  "memchr",
  "minimal-lexical",
 ]
+
+[[package]]
+name = "non-empty-vec"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ceeba69aa8d4c53cdceeac8f17eb2656bb88b468bbe6c0889d34edfdea26ec8b"
 
 [[package]]
 name = "notify"

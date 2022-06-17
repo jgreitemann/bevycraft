@@ -24,6 +24,7 @@ mod prelude {
 }
 
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy_ui_navigation::DefaultNavigationPlugins;
 use prelude::*;
 
 fn main() {
@@ -39,6 +40,7 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugins(DefaultNavigationPlugins)
         .add_plugin(TurnStatePlugin)
         .add_plugins(EntityPlugins)
         .add_plugins(UiPlugins)

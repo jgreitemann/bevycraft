@@ -1,6 +1,11 @@
 use super::{UiState, UiStyles};
 use crate::prelude::*;
 
+use bevy_ui_navigation::{
+    components::FocusableButtonBundle, event_helpers::NavEventQuery, FocusState, Focusable,
+    NavRequestSystem,
+};
+
 const BACKGROUND: Color = Color::rgba(0.1, 0.1, 0.1, 0.95);
 const NORMAL_BUTTON: Color = Color::rgb(0.2, 0.2, 0.2);
 const HOVERED_BUTTON: Color = Color::rgb(0.35, 0.35, 0.35);
@@ -16,9 +21,9 @@ impl Plugin for MenuPlugin {
             .add_system_set(
                 ConditionSet::new()
                     .run_in_state(UiState::Menu)
-                    .with_system(handle_button_interaction)
-                    .with_system(resume_game)
-                    .with_system(restart_game)
+                    .after(NavRequestSystem)
+                    .with_system(button_system)
+                    .with_system(handle_nav_events)
                     .into(),
             );
     }
@@ -82,15 +87,18 @@ fn set_up_menu(
             });
             if current_turn_state == Pause {
                 parent
-                    .spawn_bundle(ButtonBundle {
-                        style: Style {
-                            size: Size::new(Val::Px(200.0), Val::Px(50.0)),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            margin: Rect::all(Val::Px(10.0)),
+                    .spawn_bundle(FocusableButtonBundle {
+                        button_bundle: ButtonBundle {
+                            style: Style {
+                                size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                margin: Rect::all(Val::Px(10.0)),
+                                ..default()
+                            },
+                            color: NORMAL_BUTTON.into(),
                             ..default()
                         },
-                        color: NORMAL_BUTTON.into(),
                         ..default()
                     })
                     .insert(ButtonAction::ResumeGame)
@@ -102,15 +110,18 @@ fn set_up_menu(
                     });
             }
             parent
-                .spawn_bundle(ButtonBundle {
-                    style: Style {
-                        size: Size::new(Val::Px(200.0), Val::Px(50.0)),
-                        justify_content: JustifyContent::Center,
-                        align_items: AlignItems::Center,
-                        margin: Rect::all(Val::Px(10.0)),
+                .spawn_bundle(FocusableButtonBundle {
+                    button_bundle: ButtonBundle {
+                        style: Style {
+                            size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            margin: Rect::all(Val::Px(10.0)),
+                            ..default()
+                        },
+                        color: NORMAL_BUTTON.into(),
                         ..default()
                     },
-                    color: NORMAL_BUTTON.into(),
                     ..default()
                 })
                 .insert(ButtonAction::RestartGame)
@@ -129,48 +140,34 @@ fn tear_down_menu(mut commands: Commands, menu_query: Query<Entity, With<MenuIte
     }
 }
 
-fn handle_button_interaction(
-    mut interaction_query: Query<
-        (&Interaction, &mut UiColor, &ButtonAction),
-        (Changed<Interaction>, With<Button>),
-    >,
-    mut actions: EventWriter<ButtonAction>,
-) {
-    for (interaction, mut color, action) in interaction_query.iter_mut() {
-        match *interaction {
-            Interaction::Clicked => {
-                *color = PRESSED_BUTTON.into();
-                actions.send(*action);
-            }
-            Interaction::Hovered => {
-                *color = HOVERED_BUTTON.into();
-            }
-            Interaction::None => {
-                *color = NORMAL_BUTTON.into();
-            }
-        }
+fn button_system(mut focusables: Query<(&Focusable, &mut UiColor), Changed<Focusable>>) {
+    for (focus, mut color) in focusables.iter_mut() {
+        let new_color = match focus.state() {
+            FocusState::Dormant | FocusState::Active => PRESSED_BUTTON,
+            FocusState::Focused => HOVERED_BUTTON,
+            FocusState::Inert => NORMAL_BUTTON,
+        };
+        *color = new_color.into();
     }
 }
 
-fn resume_game(mut commands: Commands, mut actions: EventReader<ButtonAction>) {
-    for _ in actions
-        .iter()
-        .filter(|&action| *action == ButtonAction::ResumeGame)
-    {
-        commands.insert_resource(NextState(TurnState::AwaitingInput));
-    }
-}
-
-fn restart_game(
+fn handle_nav_events(
     mut commands: Commands,
-    mut actions: EventReader<ButtonAction>,
+    mut buttons: NavEventQuery<&mut ButtonAction>,
     mut reset_evt: EventWriter<ResetGame>,
 ) {
-    for _ in actions
-        .iter()
-        .filter(|&action| *action == ButtonAction::RestartGame)
+    match buttons
+        .single_activated_mut()
+        .deref_mut()
+        .ignore_remaining()
     {
-        commands.insert_resource(NextState(TurnState::AwaitingInput));
-        reset_evt.send(ResetGame);
+        Some(ButtonAction::ResumeGame) => {
+            commands.insert_resource(NextState(TurnState::AwaitingInput));
+        }
+        Some(ButtonAction::RestartGame) => {
+            commands.insert_resource(NextState(TurnState::AwaitingInput));
+            reset_evt.send(ResetGame);
+        }
+        None => {}
     }
 }
