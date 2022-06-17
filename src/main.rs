@@ -37,13 +37,12 @@ fn main() {
             ..Default::default()
         })
         .add_plugins(DefaultPlugins)
+        .add_plugin(TurnStatePlugin)
         .add_plugins(EntityPlugins)
         .add_plugins(UiPlugins)
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(CameraPlugin)
-        .add_plugin(TurnStatePlugin)
-        .add_system(bevy::input::system::exit_on_esc_system)
         .run();
 }

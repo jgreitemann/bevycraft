@@ -5,6 +5,10 @@ pub enum TurnState {
     AwaitingInput,
     PlayerTurn,
     MonsterTurn,
+    Victory,
+    Defeat,
+    Pause,
+    Reset,
 }
 
 pub struct TurnStatePlugin;
@@ -20,8 +24,9 @@ fn end_turn(turn_state: Res<CurrentState<TurnState>>, mut commands: Commands) {
     use TurnState::*;
     let CurrentState(current_state) = turn_state.as_ref();
     commands.insert_resource(NextState(match current_state {
-        AwaitingInput => return,
+        AwaitingInput | Victory | Defeat | Pause => return,
         PlayerTurn => MonsterTurn,
         MonsterTurn => AwaitingInput,
+        Reset => AwaitingInput,
     }));
 }

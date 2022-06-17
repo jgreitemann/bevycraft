@@ -28,7 +28,7 @@ fn player_input(
         } = event
         {
             use KeyCode::*;
-            match key {
+            let next_state = match key {
                 W | A | S | D => {
                     let delta = match key {
                         W => ivec2(0, 1),
@@ -41,12 +41,14 @@ fn player_input(
                         entity: player_entity,
                         destination: Position(player_vec + delta),
                     });
+                    NextState(TurnState::PlayerTurn)
                 }
-                X | Z => continue,
-                _ => {}
-            }
+                Space => NextState(TurnState::PlayerTurn),
+                Escape => NextState(TurnState::Pause),
+                _ => continue,
+            };
 
-            commands.insert_resource(NextState(TurnState::PlayerTurn));
+            commands.insert_resource(next_state);
         }
     }
 }

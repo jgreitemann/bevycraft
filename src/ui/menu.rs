@@ -1,4 +1,4 @@
-use super::UiStyles;
+use super::{UiState, UiStyles};
 use crate::prelude::*;
 
 const BACKGROUND: Color = Color::rgba(0.1, 0.1, 0.1, 0.95);
@@ -10,17 +10,51 @@ pub struct MenuPlugin;
 
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_menu)
-            .add_system(handle_button_interaction);
+        app.add_event::<ButtonAction>()
+            .add_enter_system(UiState::Menu, set_up_menu)
+            .add_exit_system(UiState::Menu, tear_down_menu)
+            .add_system_set(
+                ConditionSet::new()
+                    .run_in_state(UiState::Menu)
+                    .with_system(handle_button_interaction)
+                    .with_system(handle_actions)
+                    .into(),
+            );
     }
 }
 
 #[derive(Component, Debug)]
+struct MenuItem;
+
+#[derive(Component, Clone, Copy, Debug, Eq, PartialEq)]
 enum ButtonAction {
-    PlayAgain,
+    ResumeGame,
+    RestartGame,
 }
 
-fn setup_menu(mut commands: Commands, styles: Res<UiStyles>) {
+fn set_up_menu(
+    mut commands: Commands,
+    styles: Res<UiStyles>,
+    turn_state: Res<CurrentState<TurnState>>,
+) {
+    use TurnState::*;
+    let CurrentState(current_turn_state) = *turn_state;
+    let heading_text = match current_turn_state {
+        AwaitingInput | PlayerTurn | MonsterTurn | Reset => {
+            panic!("Menu should not be shown in state {:?}", current_turn_state)
+        }
+        Victory => "Victory!",
+        Defeat => "Defeat!",
+        Pause => "Game Paused",
+    };
+    let restart_text = match current_turn_state {
+        AwaitingInput | PlayerTurn | MonsterTurn | Reset => {
+            panic!("Menu should not be shown in state {:?}", current_turn_state)
+        }
+        Victory | Defeat => "Play again",
+        Pause => "Restart game",
+    };
+
     commands
         .spawn_bundle(NodeBundle {
             style: Style {
@@ -30,37 +64,68 @@ fn setup_menu(mut commands: Commands, styles: Res<UiStyles>) {
                 justify_content: JustifyContent::Center,
                 align_items: AlignItems::Center,
                 flex_direction: FlexDirection::ColumnReverse,
-                margin: Rect::all(Val::Px(20.0)),
                 ..default()
             },
             color: BACKGROUND.into(),
             ..default()
         })
+        .insert(MenuItem)
         .with_children(|parent| {
             parent.spawn_bundle(TextBundle {
-                text: Text::with_section("Victory!", styles.heading(), Default::default()),
+                text: Text::with_section(heading_text, styles.heading(), Default::default()),
+                style: Style {
+                    margin: Rect::all(Val::Px(20.0)),
+                    ..default()
+                },
                 ..default()
             });
+            if current_turn_state == Pause {
+                parent
+                    .spawn_bundle(ButtonBundle {
+                        style: Style {
+                            size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                            justify_content: JustifyContent::Center,
+                            align_items: AlignItems::Center,
+                            margin: Rect::all(Val::Px(10.0)),
+                            ..default()
+                        },
+                        color: NORMAL_BUTTON.into(),
+                        ..default()
+                    })
+                    .insert(ButtonAction::ResumeGame)
+                    .with_children(|parent| {
+                        parent.spawn_bundle(TextBundle {
+                            text: Text::with_section("Resume", styles.text(), Default::default()),
+                            ..default()
+                        });
+                    });
+            }
             parent
                 .spawn_bundle(ButtonBundle {
                     style: Style {
                         size: Size::new(Val::Px(200.0), Val::Px(50.0)),
                         justify_content: JustifyContent::Center,
                         align_items: AlignItems::Center,
-                        margin: Rect::all(Val::Px(20.0)),
+                        margin: Rect::all(Val::Px(10.0)),
                         ..default()
                     },
                     color: NORMAL_BUTTON.into(),
                     ..default()
                 })
-                .insert(ButtonAction::PlayAgain)
+                .insert(ButtonAction::RestartGame)
                 .with_children(|parent| {
                     parent.spawn_bundle(TextBundle {
-                        text: Text::with_section("Play Again", styles.text(), Default::default()),
+                        text: Text::with_section(restart_text, styles.text(), Default::default()),
                         ..default()
                     });
                 });
         });
+}
+
+fn tear_down_menu(mut commands: Commands, menu_query: Query<Entity, With<MenuItem>>) {
+    for menu_item in menu_query.iter() {
+        commands.entity(menu_item).despawn_recursive();
+    }
 }
 
 fn handle_button_interaction(
@@ -68,14 +133,13 @@ fn handle_button_interaction(
         (&Interaction, &mut UiColor, &ButtonAction),
         (Changed<Interaction>, With<Button>),
     >,
+    mut actions: EventWriter<ButtonAction>,
 ) {
     for (interaction, mut color, action) in interaction_query.iter_mut() {
         match *interaction {
             Interaction::Clicked => {
                 *color = PRESSED_BUTTON.into();
-                match *action {
-                    ButtonAction::PlayAgain => info!("Resetting game..."),
-                }
+                actions.send(*action);
             }
             Interaction::Hovered => {
                 *color = HOVERED_BUTTON.into();
@@ -84,5 +148,17 @@ fn handle_button_interaction(
                 *color = NORMAL_BUTTON.into();
             }
         }
+    }
+}
+
+fn handle_actions(mut commands: Commands, mut actions: EventReader<ButtonAction>) {
+    use ButtonAction::*;
+    use TurnState::*;
+    for action in actions.iter() {
+        let next_state = match *action {
+            ResumeGame => NextState(AwaitingInput),
+            RestartGame => NextState(Reset),
+        };
+        commands.insert_resource(next_state);
     }
 }
