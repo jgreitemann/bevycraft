@@ -29,9 +29,9 @@ impl MobBundle {
         health: Health,
         fov_radius: i32,
         texture_index: usize,
-        texture_atlases: &Assets<TextureAtlas>,
+        texture_atlas: &DefaultTextureAtlas,
     ) -> Self {
-        let atlas_handle = texture_atlases.get_handle(texture_atlases.iter().next().unwrap().0);
+        let DefaultTextureAtlas(atlas_handle) = texture_atlas;
         let world_pos = tile_center(&position);
         MobBundle {
             mob: Mob,
@@ -40,7 +40,7 @@ impl MobBundle {
             fov: FieldOfView::new(fov_radius),
             sprite_sheet_bundle: SpriteSheetBundle {
                 transform: Transform::from_translation(world_pos),
-                texture_atlas: atlas_handle,
+                texture_atlas: atlas_handle.clone(),
                 sprite: TextureAtlasSprite::new(texture_index),
                 ..default()
             },
@@ -56,10 +56,10 @@ pub struct PlayerBundle {
 }
 
 impl PlayerBundle {
-    pub fn new(position: Position, texture_atlases: &Assets<TextureAtlas>) -> Self {
+    pub fn new(position: Position, texture_atlas: &DefaultTextureAtlas) -> Self {
         PlayerBundle {
             player: Player,
-            mob_bundle: MobBundle::new(position, Health::new(10), 8, 64, texture_atlases),
+            mob_bundle: MobBundle::new(position, Health::new(10), 8, 64, texture_atlas),
         }
     }
 }
@@ -73,11 +73,11 @@ pub struct HostileMobBundle {
 }
 
 impl HostileMobBundle {
-    pub fn new(position: Position, texture_atlases: &Assets<TextureAtlas>) -> Self {
+    pub fn new(position: Position, texture_atlas: &DefaultTextureAtlas) -> Self {
         HostileMobBundle {
             hostile: Hostile,
             chasing: ChasingPlayer,
-            mob_bundle: MobBundle::new(position, Health::new(1), 6, 103, texture_atlases),
+            mob_bundle: MobBundle::new(position, Health::new(1), 6, 103, texture_atlas),
         }
     }
 }

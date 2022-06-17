@@ -1,7 +1,6 @@
 mod map_builder;
 mod mouse;
 mod query_adapter;
-mod texture;
 
 use crate::prelude::*;
 use map_builder::*;
@@ -43,16 +42,21 @@ pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
+            .add_event::<ResetGame>()
             .insert_resource(ClearColor(Color::BLACK))
-            .add_startup_system_to_stage(StartupStage::PreStartup, texture::build_texture_atlases)
             .add_startup_system(spawn_map_layer)
+            .add_system_to_stage(
+                CoreStage::PreUpdate,
+                spawn_map_layer.run_on_event::<ResetGame>(),
+            )
             .add_event::<mouse::TileInteraction>()
-            .add_system(texture::set_texture_filters_to_nearest)
             .add_system(mouse::mouse_click_tile_interaction)
             .add_system(mouse::hide_tiles_by_click.after(mouse::mouse_click_tile_interaction))
             .add_system_to_stage(CoreStage::PostUpdate, sync_tiles);
     }
 }
+
+pub struct ResetGame;
 
 #[derive(Bundle, Clone)]
 struct BevycraftTileBundle {
@@ -74,9 +78,16 @@ impl TileBundleTrait for BevycraftTileBundle {
 fn spawn_map_layer(
     mut commands: Commands,
     mut map_query: MapQuery,
+    entity_query: Query<Entity, With<Mob>>,
     asset_server: Res<AssetServer>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
+    texture_atlas: Res<DefaultTextureAtlas>,
 ) {
+    // Despawn the map and all entities in case of game reset
+    map_query.despawn(&mut commands, MAP_ID);
+    for entity in entity_query.iter() {
+        commands.entity(entity).despawn();
+    }
+
     let texture_handle = asset_server.load("dungeonfont.png");
 
     // Create map entity and component:
@@ -134,12 +145,15 @@ fn spawn_map_layer(
     // Spawn the player
     commands.spawn_bundle(PlayerBundle::new(
         map_builder.player_start,
-        &texture_atlases,
+        texture_atlas.as_ref(),
     ));
 
     // Spawn monsters
     for spawn_location in map_builder.spawn_locations {
-        commands.spawn_bundle(HostileMobBundle::new(spawn_location, &texture_atlases));
+        commands.spawn_bundle(HostileMobBundle::new(
+            spawn_location,
+            texture_atlas.as_ref(),
+        ));
     }
 }
 

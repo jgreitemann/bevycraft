@@ -2,6 +2,7 @@ mod camera;
 mod entities;
 mod map;
 mod player_input;
+mod texture;
 mod turn_state;
 mod ui;
 
@@ -10,6 +11,7 @@ mod prelude {
     pub use crate::entities::*;
     pub use crate::map::*;
     pub use crate::player_input::*;
+    pub use crate::texture::*;
     pub use crate::turn_state::*;
     pub use crate::ui::*;
     pub use bevy::math::ivec2;
@@ -44,5 +46,6 @@ fn main() {
         .add_plugin(PlayerInputPlugin)
         .add_plugin(MapPlugin)
         .add_plugin(CameraPlugin)
+        .add_startup_system_to_stage(StartupStage::PreStartup, build_texture_atlases)
         .run();
 }

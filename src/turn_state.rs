@@ -8,7 +8,6 @@ pub enum TurnState {
     Victory,
     Defeat,
     Pause,
-    Reset,
 }
 
 pub struct TurnStatePlugin;
@@ -27,6 +26,5 @@ fn end_turn(turn_state: Res<CurrentState<TurnState>>, mut commands: Commands) {
         AwaitingInput | Victory | Defeat | Pause => return,
         PlayerTurn => MonsterTurn,
         MonsterTurn => AwaitingInput,
-        Reset => AwaitingInput,
     }));
 }

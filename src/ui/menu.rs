@@ -17,7 +17,8 @@ impl Plugin for MenuPlugin {
                 ConditionSet::new()
                     .run_in_state(UiState::Menu)
                     .with_system(handle_button_interaction)
-                    .with_system(handle_actions)
+                    .with_system(resume_game)
+                    .with_system(restart_game)
                     .into(),
             );
     }
@@ -40,7 +41,7 @@ fn set_up_menu(
     use TurnState::*;
     let CurrentState(current_turn_state) = *turn_state;
     let heading_text = match current_turn_state {
-        AwaitingInput | PlayerTurn | MonsterTurn | Reset => {
+        AwaitingInput | PlayerTurn | MonsterTurn => {
             panic!("Menu should not be shown in state {:?}", current_turn_state)
         }
         Victory => "Victory!",
@@ -48,7 +49,7 @@ fn set_up_menu(
         Pause => "Game Paused",
     };
     let restart_text = match current_turn_state {
-        AwaitingInput | PlayerTurn | MonsterTurn | Reset => {
+        AwaitingInput | PlayerTurn | MonsterTurn => {
             panic!("Menu should not be shown in state {:?}", current_turn_state)
         }
         Victory | Defeat => "Play again",
@@ -151,14 +152,25 @@ fn handle_button_interaction(
     }
 }
 
-fn handle_actions(mut commands: Commands, mut actions: EventReader<ButtonAction>) {
-    use ButtonAction::*;
-    use TurnState::*;
-    for action in actions.iter() {
-        let next_state = match *action {
-            ResumeGame => NextState(AwaitingInput),
-            RestartGame => NextState(Reset),
-        };
-        commands.insert_resource(next_state);
+fn resume_game(mut commands: Commands, mut actions: EventReader<ButtonAction>) {
+    for _ in actions
+        .iter()
+        .filter(|&action| *action == ButtonAction::ResumeGame)
+    {
+        commands.insert_resource(NextState(TurnState::AwaitingInput));
+    }
+}
+
+fn restart_game(
+    mut commands: Commands,
+    mut actions: EventReader<ButtonAction>,
+    mut reset_evt: EventWriter<ResetGame>,
+) {
+    for _ in actions
+        .iter()
+        .filter(|&action| *action == ButtonAction::RestartGame)
+    {
+        commands.insert_resource(NextState(TurnState::AwaitingInput));
+        reset_evt.send(ResetGame);
     }
 }
