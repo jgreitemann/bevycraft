@@ -20,8 +20,18 @@ fn combat_damage(
     }
 }
 
-fn kill_mobs(mut cmd: Commands, health_query: Query<(Entity, &Health), Changed<Health>>) {
-    for (killed_entity, _) in health_query.iter().filter(|(_, health)| health.is_dead()) {
-        cmd.entity(killed_entity).despawn();
+fn kill_mobs(
+    mut cmd: Commands,
+    health_query: Query<(Entity, &Health, Option<&Player>), Changed<Health>>,
+) {
+    for (killed_entity, _, player_opt) in health_query
+        .iter()
+        .filter(|(_, health, _)| health.is_dead())
+    {
+        if player_opt.is_some() {
+            cmd.insert_resource(NextState(TurnState::Defeat));
+        } else {
+            cmd.entity(killed_entity).despawn();
+        }
     }
 }
