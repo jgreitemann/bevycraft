@@ -42,7 +42,6 @@ pub struct MapPlugin;
 impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
-            .add_event::<ResetGame>()
             .insert_resource(ClearColor(Color::BLACK))
             .add_startup_system(spawn_map_layer)
             .add_system_to_stage(
@@ -64,8 +63,6 @@ impl Plugin for MapPlugin {
     }
 }
 
-pub struct ResetGame;
-
 #[derive(Bundle, Clone)]
 struct BevycraftTileBundle {
     tile_type: TileType,
@@ -86,15 +83,10 @@ impl TileBundleTrait for BevycraftTileBundle {
 fn spawn_map_layer(
     mut commands: Commands,
     mut map_query: MapQuery,
-    entity_query: Query<Entity, Or<(With<Mob>, With<Item>)>>,
     asset_server: Res<AssetServer>,
-    texture_atlas: Res<DefaultTextureAtlas>,
 ) {
-    // Despawn the map and all entities in case of game reset
+    // Despawn the map in case of game reset
     map_query.despawn(&mut commands, MAP_ID);
-    for entity in entity_query.iter() {
-        commands.entity(entity).despawn();
-    }
 
     let texture_handle = asset_server.load("dungeonfont.png");
 
@@ -149,26 +141,6 @@ fn spawn_map_layer(
             0.0,
         ))
         .insert(GlobalTransform::default());
-
-    // Spawn the player
-    commands.spawn_bundle(PlayerBundle::new(
-        map_builder.player_start,
-        texture_atlas.as_ref(),
-    ));
-
-    // Spawn monsters
-    for spawn_location in map_builder.spawn_locations {
-        commands.spawn_bundle(HostileMobBundle::new(
-            spawn_location,
-            texture_atlas.as_ref(),
-        ));
-    }
-
-    // Spawn the amulet
-    commands.spawn_bundle(AmuletBundle::new(
-        map_builder.amulet_start,
-        texture_atlas.as_ref(),
-    ));
 }
 
 fn sync_tiles(

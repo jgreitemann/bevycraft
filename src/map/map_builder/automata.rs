@@ -41,18 +41,6 @@ impl CellularAutomataArchitect {
 
         mb.map_data = new_tiles;
     }
-
-    fn find_start(&self, mb: &MapBuilder) -> Point {
-        let center = mb.dimensions() / 2;
-
-        mb.map_data
-            .iter()
-            .enumerate()
-            .filter(|&(_, tile)| *tile == TileType::Floor)
-            .map(|(idx, _)| mb.index_to_point2d(idx))
-            .min_by_key(|p| DistanceAlg::PythagorasSquared.distance2d(center, *p) as i64)
-            .unwrap()
-    }
 }
 
 impl MapArchitect for CellularAutomataArchitect {
@@ -64,14 +52,6 @@ impl MapArchitect for CellularAutomataArchitect {
         for _ in 0..10 {
             self.iteration(&mut mb);
         }
-
-        mb.player_start = self.find_start(&mb).into();
-        mb.spawn_locations = mb
-            .spawn_monsters(&mut rng)
-            .into_iter()
-            .map(|p| p.into())
-            .collect();
-        mb.amulet_start = mb.find_most_distant().into();
 
         mb
     }

@@ -4,6 +4,7 @@ mod combat;
 mod fov;
 mod items;
 mod mobs;
+mod spawning;
 
 use crate::prelude::*;
 use bevy::app::PluginGroupBuilder;
@@ -17,6 +18,7 @@ use mobs::*;
 pub use fov::FieldOfView;
 pub use items::*;
 pub use mobs::{HostileMobBundle, PlayerBundle};
+use spawning::*;
 
 pub struct EntityPlugins;
 
@@ -28,7 +30,8 @@ impl PluginGroup for EntityPlugins {
             .add(CombatPlugin)
             .add(FieldOfViewPlugin)
             .add(AvatarPlugin)
-            .add(ItemPlugin);
+            .add(ItemPlugin)
+            .add(EntitySpawningPlugin);
     }
 }
 

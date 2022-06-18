@@ -57,15 +57,6 @@ impl MapArchitect for RoomsArchitect {
         let mut rng = thread_rng();
         self.build_random_rooms(&mut mb, &mut rng);
         self.build_corridors(&mut mb, &mut rng);
-        mb.player_start = self.rooms[0].center().into();
-        mb.amulet_start = mb.find_most_distant().into();
-
-        mb.spawn_locations = self
-            .rooms
-            .iter()
-            .skip(1)
-            .map(|rect| rect.center().into())
-            .collect();
 
         mb
     }

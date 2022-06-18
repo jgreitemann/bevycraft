@@ -2,7 +2,6 @@ mod automata;
 mod rooms;
 
 use crate::prelude::*;
-use rand::rngs::ThreadRng;
 
 trait MapArchitect {
     fn architect(&mut self) -> MapBuilder;
@@ -10,9 +9,6 @@ trait MapArchitect {
 
 pub struct MapBuilder {
     pub map_data: Vec<TileType>,
-    pub player_start: Position,
-    pub amulet_start: Position,
-    pub spawn_locations: Vec<Position>,
 }
 
 impl MapBuilder {
@@ -43,27 +39,6 @@ impl MapBuilder {
         }
     }
 
-    fn find_most_distant(&self) -> Point {
-        let dijkstra_map = DijkstraMap::new(
-            MAP_WIDTH,
-            MAP_HEIGHT,
-            &[self.point2d_to_index(self.player_start.into())],
-            self,
-            1024.0,
-        );
-        const UNREACHABLE: &f32 = &f32::MAX;
-        self.index_to_point2d(
-            dijkstra_map
-                .map
-                .iter()
-                .enumerate()
-                .filter(|(_, dist)| *dist < UNREACHABLE)
-                .max_by(|(_, lhs_dist), (_, rhs_dist)| lhs_dist.partial_cmp(rhs_dist).unwrap())
-                .unwrap()
-                .0,
-        )
-    }
-
     fn apply_vertical_tunnel(&mut self, y1: i32, y2: i32, x: i32) {
         use std::cmp::{max, min};
         for y in min(y1, y2)..=max(y1, y2) {
@@ -81,38 +56,12 @@ impl MapBuilder {
             }
         }
     }
-
-    fn spawn_monsters(&self, rng: &mut ThreadRng) -> Vec<Point> {
-        const NUM_MONSTERS: usize = 50;
-        const MIN_DISTANCE: f32 = 10f32;
-
-        let spawnable_tiles: Vec<_> = self
-            .map_data
-            .iter()
-            .enumerate()
-            .map(|(idx, tile_type)| (self.index_to_point2d(idx), tile_type))
-            .filter(|&(_, &tile_type)| tile_type == TileType::Floor)
-            .map(|(p, _)| p)
-            .filter(|&p| {
-                DistanceAlg::Pythagoras.distance2d(p, self.player_start.into()) > MIN_DISTANCE
-            })
-            .collect();
-
-        use rand::prelude::*;
-        spawnable_tiles
-            .choose_multiple(rng, NUM_MONSTERS)
-            .cloned()
-            .collect()
-    }
 }
 
 impl Default for MapBuilder {
     fn default() -> Self {
         MapBuilder {
             map_data: vec![TileType::Wall; MAP_WIDTH * MAP_HEIGHT],
-            player_start: Default::default(),
-            amulet_start: Default::default(),
-            spawn_locations: Vec::new(),
         }
     }
 }
