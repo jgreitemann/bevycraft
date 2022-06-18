@@ -2,6 +2,8 @@ use crate::prelude::*;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum TurnState {
+    Loading,
+    NewGame,
     AwaitingInput,
     PlayerTurn,
     MonsterTurn,
@@ -14,7 +16,7 @@ pub struct TurnStatePlugin;
 
 impl Plugin for TurnStatePlugin {
     fn build(&self, app: &mut App) {
-        app.add_loopless_state(TurnState::AwaitingInput)
+        app.add_loopless_state(TurnState::Loading)
             .add_system_to_stage(CoreStage::Last, end_turn);
     }
 }
@@ -32,9 +34,10 @@ fn end_turn(
     } else {
         let CurrentState(current_state) = turn_state.as_ref();
         match current_state {
-            AwaitingInput | Victory | Defeat | Pause => return,
+            Loading | AwaitingInput | Victory | Defeat | Pause => return,
             PlayerTurn => MonsterTurn,
             MonsterTurn => AwaitingInput,
+            NewGame => AwaitingInput,
         }
     };
 

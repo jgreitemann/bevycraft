@@ -40,8 +40,8 @@ fn sync_ui_state(
 
     use TurnState::*;
     let supposed_ui_state = match current_turn_state {
-        AwaitingInput | PlayerTurn | MonsterTurn => UiState::Hud,
-        Victory | Defeat | Pause => UiState::Menu,
+        NewGame | AwaitingInput | PlayerTurn | MonsterTurn => UiState::Hud,
+        Loading | Victory | Defeat | Pause => UiState::Menu,
     };
 
     if *ui_state != CurrentState(supposed_ui_state) {

@@ -263,6 +263,40 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_asset_loader"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2a78d8801db4a317b8a165ad0ceb2eba12250914799d1b6afa9c61e4da861a4"
+dependencies = [
+ "bevy",
+ "bevy_asset_loader_derive",
+ "iyes_loopless",
+]
+
+[[package]]
+name = "bevy_asset_loader_derive"
+version = "0.11.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d300dbfd5a2b6c202902e7e2be12003cb52493a9fa7278f4f95e4698ad4fd57"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "bevy_asset_ron"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "095f32d5f5a852e6e09e9b499d0d2818673e60b35d0913529c0a6a72c991dcde"
+dependencies = [
+ "anyhow",
+ "bevy",
+ "ron",
+ "serde",
+]
+
+[[package]]
 name = "bevy_audio"
 version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -789,6 +823,8 @@ version = "0.1.0"
 dependencies = [
  "bevy",
  "bevy-ui-navigation",
+ "bevy_asset_loader",
+ "bevy_asset_ron",
  "bevy_ecs_tilemap",
  "bracket-algorithm-traits",
  "bracket-geometry",
@@ -797,6 +833,8 @@ dependencies = [
  "itertools",
  "iyes_loopless",
  "rand",
+ "ron",
+ "serde",
 ]
 
 [[package]]
@@ -2583,9 +2621,9 @@ dependencies = [
 
 [[package]]
 name = "ron"
-version = "0.7.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b861ecaade43ac97886a512b360d01d66be9f41f3c61088b42cedf92e03d678"
+checksum = "88073939a61e5b7680558e6be56b419e208420c2adb92be54921fa6b72283f1a"
 dependencies = [
  "base64",
  "bitflags",

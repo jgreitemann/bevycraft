@@ -14,6 +14,10 @@ lto = "thin"
 bevy = "0.7.0"
 bevy_ecs_tilemap = { version = "0.6.0", features = ["atlas"] }
 bevy-ui-navigation = "0.18.0"
+bevy_asset_ron = "0.4.0"
+bevy_asset_loader = { version = "0.11.0", features = ["stageless"] }
+serde = "1.0.137"
+ron = "0.7.1"
 iyes_loopless = "0.5.1"
 rand = "0.8.5"
 bracket-geometry = "0.8.3"

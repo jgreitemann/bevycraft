@@ -1,4 +1,5 @@
 mod camera;
+mod data;
 mod entities;
 mod map;
 mod player_input;
@@ -8,6 +9,7 @@ mod ui;
 
 mod prelude {
     pub use crate::camera::*;
+    pub use crate::data::*;
     pub use crate::entities::*;
     pub use crate::map::*;
     pub use crate::player_input::*;
@@ -21,8 +23,6 @@ mod prelude {
     pub use bracket_geometry::prelude::*;
     pub use bracket_pathfinding::prelude::*;
     pub use iyes_loopless::prelude::*;
-
-    pub struct ResetGame;
 }
 
 use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
@@ -35,7 +35,6 @@ fn main() {
     console_error_panic_hook::set_once();
 
     App::new()
-        .add_event::<ResetGame>()
         .insert_resource(WindowDescriptor {
             width: 1270.0,
             height: 720.0,
@@ -45,6 +44,7 @@ fn main() {
         .add_plugins(DefaultPlugins)
         .add_plugins(DefaultNavigationPlugins)
         .add_plugin(TurnStatePlugin)
+        .add_plugins(DataPlugins)
         .add_plugins(EntityPlugins)
         .add_plugins(UiPlugins)
         .add_plugin(FrameTimeDiagnosticsPlugin::default())

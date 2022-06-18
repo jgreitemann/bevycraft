@@ -46,19 +46,21 @@ fn set_up_menu(
     use TurnState::*;
     let CurrentState(current_turn_state) = *turn_state;
     let heading_text = match current_turn_state {
-        AwaitingInput | PlayerTurn | MonsterTurn => {
-            panic!("Menu should not be shown in state {:?}", current_turn_state)
-        }
+        Loading => "Loading game assets...",
         Victory => "Victory!",
         Defeat => "Defeat!",
         Pause => "Game Paused",
-    };
-    let restart_text = match current_turn_state {
-        AwaitingInput | PlayerTurn | MonsterTurn => {
+        _ => {
             panic!("Menu should not be shown in state {:?}", current_turn_state)
         }
+    };
+    let restart_text = match current_turn_state {
+        Loading => "",
         Victory | Defeat => "Play again",
         Pause => "Restart game",
+        _ => {
+            panic!("Menu should not be shown in state {:?}", current_turn_state)
+        }
     };
 
     commands
@@ -85,6 +87,7 @@ fn set_up_menu(
                 },
                 ..default()
             });
+
             if current_turn_state == Pause {
                 parent
                     .spawn_bundle(FocusableButtonBundle {
@@ -109,28 +112,35 @@ fn set_up_menu(
                         });
                     });
             }
-            parent
-                .spawn_bundle(FocusableButtonBundle {
-                    button_bundle: ButtonBundle {
-                        style: Style {
-                            size: Size::new(Val::Px(200.0), Val::Px(50.0)),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
-                            margin: Rect::all(Val::Px(10.0)),
+
+            if current_turn_state != Loading {
+                parent
+                    .spawn_bundle(FocusableButtonBundle {
+                        button_bundle: ButtonBundle {
+                            style: Style {
+                                size: Size::new(Val::Px(200.0), Val::Px(50.0)),
+                                justify_content: JustifyContent::Center,
+                                align_items: AlignItems::Center,
+                                margin: Rect::all(Val::Px(10.0)),
+                                ..default()
+                            },
+                            color: NORMAL_BUTTON.into(),
                             ..default()
                         },
-                        color: NORMAL_BUTTON.into(),
                         ..default()
-                    },
-                    ..default()
-                })
-                .insert(ButtonAction::RestartGame)
-                .with_children(|parent| {
-                    parent.spawn_bundle(TextBundle {
-                        text: Text::with_section(restart_text, styles.text(), Default::default()),
-                        ..default()
+                    })
+                    .insert(ButtonAction::RestartGame)
+                    .with_children(|parent| {
+                        parent.spawn_bundle(TextBundle {
+                            text: Text::with_section(
+                                restart_text,
+                                styles.text(),
+                                Default::default(),
+                            ),
+                            ..default()
+                        });
                     });
-                });
+            }
         });
 }
 
@@ -151,11 +161,7 @@ fn button_system(mut focusables: Query<(&Focusable, &mut UiColor), Changed<Focus
     }
 }
 
-fn handle_nav_events(
-    mut commands: Commands,
-    mut buttons: NavEventQuery<&mut ButtonAction>,
-    mut reset_evt: EventWriter<ResetGame>,
-) {
+fn handle_nav_events(mut commands: Commands, mut buttons: NavEventQuery<&mut ButtonAction>) {
     match buttons
         .single_activated_mut()
         .deref_mut()
@@ -165,8 +171,7 @@ fn handle_nav_events(
             commands.insert_resource(NextState(TurnState::AwaitingInput));
         }
         Some(ButtonAction::RestartGame) => {
-            commands.insert_resource(NextState(TurnState::AwaitingInput));
-            reset_evt.send(ResetGame);
+            commands.insert_resource(NextState(TurnState::NewGame));
         }
         None => {}
     }

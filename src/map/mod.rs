@@ -43,11 +43,7 @@ impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
             .insert_resource(ClearColor(Color::BLACK))
-            .add_startup_system(spawn_map_layer)
-            .add_system_to_stage(
-                CoreStage::PreUpdate,
-                spawn_map_layer.run_on_event::<ResetGame>(),
-            )
+            .add_enter_system(TurnState::NewGame, spawn_map_layer)
             .add_event::<mouse::TileInteraction>()
             .add_system(
                 mouse::mouse_click_tile_interaction

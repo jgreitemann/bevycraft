@@ -1,0 +1,6 @@
+(
+    name: "Healing Potion",
+    texture_index: 33,
+    frequency: 1,
+    effects: [Healing(6)],
+)

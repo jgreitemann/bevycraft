@@ -4,11 +4,7 @@ pub struct EntitySpawningPlugin;
 
 impl Plugin for EntitySpawningPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system_to_stage(StartupStage::PostStartup, spawn_entities)
-            .add_system_to_stage(
-                CoreStage::Update,
-                spawn_entities.run_on_event::<ResetGame>(),
-            );
+        app.add_exit_system(TurnState::NewGame, spawn_entities);
     }
 }
 
@@ -56,7 +52,16 @@ fn spawn_entities(
     tile_map_query: TileMapQuery,
     entity_query: Query<Entity, Or<(With<Mob>, With<Item>)>>,
     texture_atlas: Res<DefaultTextureAtlas>,
+    item_data: Res<Assets<ItemData>>,
 ) {
+    info!(
+        "Items: {:?}",
+        item_data
+            .iter()
+            .map(|(_, item)| item.clone())
+            .collect::<Vec<_>>()
+    );
+
     const NUM_MONSTERS: usize = 50;
     const MIN_DISTANCE: f32 = 10f32;
 
