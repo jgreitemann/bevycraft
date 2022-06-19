@@ -1,0 +1,14 @@
+({
+    "data.items": Files(
+        paths: [
+            "data/items/healing_potion.item",
+            "data/items/dungeon_map.item",
+        ]
+    ),
+    "images.items": Files(
+        paths: [
+            "images/items/healing_potion.png",
+            "images/items/dungeon_map.png",
+        ]
+    ),
+})

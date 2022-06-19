@@ -22,24 +22,18 @@ pub struct ItemBundle {
     item: Item,
     position: Position,
     #[bundle]
-    sprite_sheet_bundle: SpriteSheetBundle,
+    sprite_bundle: SpriteBundle,
 }
 
 impl ItemBundle {
-    pub fn new(
-        position: Position,
-        texture_index: usize,
-        texture_atlas: &DefaultTextureAtlas,
-    ) -> Self {
-        let DefaultTextureAtlas(atlas_handle) = texture_atlas;
+    pub fn new(position: Position, texture: Handle<Image>) -> Self {
         let world_pos = tile_center(&position);
         ItemBundle {
             item: Item,
             position,
-            sprite_sheet_bundle: SpriteSheetBundle {
+            sprite_bundle: SpriteBundle {
                 transform: Transform::from_translation(world_pos),
-                texture_atlas: atlas_handle.clone(),
-                sprite: TextureAtlasSprite::new(texture_index),
+                texture,
                 ..default()
             },
         }
@@ -49,15 +43,26 @@ impl ItemBundle {
 #[derive(Bundle)]
 pub struct AmuletBundle {
     amulet: AmuletOfYala,
+    item: Item,
+    position: Position,
     #[bundle]
-    item_bundle: ItemBundle,
+    sprite_sheet_bundle: SpriteSheetBundle,
 }
 
 impl AmuletBundle {
     pub fn new(position: Position, texture_atlas: &DefaultTextureAtlas) -> Self {
+        let DefaultTextureAtlas(atlas_handle) = texture_atlas;
+        let world_pos = tile_center(&position);
         Self {
             amulet: AmuletOfYala,
-            item_bundle: ItemBundle::new(position, 124, texture_atlas),
+            item: Item,
+            position,
+            sprite_sheet_bundle: SpriteSheetBundle {
+                sprite: TextureAtlasSprite::new(124),
+                texture_atlas: (*atlas_handle).clone(),
+                transform: Transform::from_translation(world_pos),
+                ..default()
+            },
         }
     }
 }

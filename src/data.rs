@@ -15,7 +15,7 @@ pub enum EffectData {
 #[uuid = "efb7973b-784a-403b-8fd7-6707d6dd412f"]
 pub struct ItemData {
     pub name: String,
-    pub texture_index: usize,
+    pub icon: String,
     pub frequency: f32,
     pub effects: Vec<EffectData>,
 }
@@ -28,8 +28,11 @@ struct DataAssets {
     #[asset(path = "PixeloidSans.ttf")]
     _font: Handle<Font>,
 
-    #[asset(key = "items", collection(typed))]
-    _items: Vec<Handle<ItemData>>,
+    #[asset(key = "data.items", collection(typed))]
+    _item_data: Vec<Handle<ItemData>>,
+
+    #[asset(key = "images.items", collection(typed))]
+    _item_images: Vec<Handle<Image>>,
 }
 
 pub struct DataPlugins;
@@ -48,7 +51,7 @@ impl Plugin for DataLoaderPlugin {
     fn build(&self, app: &mut App) {
         AssetLoader::new(TurnState::Loading)
             .continue_to_state(TurnState::NewGame)
-            .with_dynamic_asset_collection_file("data/manifest.assets")
+            .with_dynamic_asset_collection_file("manifest.assets")
             .with_collection::<DataAssets>()
             .build(app);
     }

@@ -53,6 +53,7 @@ fn spawn_entities(
     entity_query: Query<Entity, Or<(With<Mob>, With<Item>)>>,
     texture_atlas: Res<DefaultTextureAtlas>,
     item_data: Res<Assets<ItemData>>,
+    asset_server: Res<AssetServer>,
 ) {
     const NUM_MONSTERS: usize = 50;
     const MIN_DISTANCE: f32 = 10f32;
@@ -102,8 +103,7 @@ fn spawn_entities(
     }) {
         commands.spawn_bundle(ItemBundle::new(
             spawn_location,
-            item.texture_index,
-            texture_atlas.as_ref(),
+            asset_server.load(item.icon.as_str()),
         ));
     }
 

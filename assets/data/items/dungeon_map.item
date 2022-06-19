@@ -1,6 +1,6 @@
 (
     name: "Dungeon Map",
-    texture_index: 123,
+    icon: "images/items/dungeon_map.png",
     frequency: 0.001,
     effects: [],
 )
