@@ -20,16 +20,18 @@ pub struct AmuletOfYala;
 #[derive(Bundle)]
 pub struct ItemBundle {
     item: Item,
+    name: Name,
     position: Position,
     #[bundle]
     sprite_bundle: SpriteBundle,
 }
 
 impl ItemBundle {
-    pub fn new(position: Position, texture: Handle<Image>) -> Self {
+    pub fn new(name: &str, position: Position, texture: Handle<Image>) -> Self {
         let world_pos = tile_center(&position);
         ItemBundle {
             item: Item,
+            name: Name::new(name.to_string()),
             position,
             sprite_bundle: SpriteBundle {
                 transform: Transform::from_translation(world_pos),
@@ -44,6 +46,7 @@ impl ItemBundle {
 pub struct AmuletBundle {
     amulet: AmuletOfYala,
     item: Item,
+    name: Name,
     position: Position,
     #[bundle]
     sprite_sheet_bundle: SpriteSheetBundle,
@@ -56,6 +59,7 @@ impl AmuletBundle {
         Self {
             amulet: AmuletOfYala,
             item: Item,
+            name: Name::new("Amulet of Yala"),
             position,
             sprite_sheet_bundle: SpriteSheetBundle {
                 sprite: TextureAtlasSprite::new(124),

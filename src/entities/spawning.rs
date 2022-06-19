@@ -102,6 +102,7 @@ fn spawn_entities(
             .collect::<Vec<_>>()
     }) {
         commands.spawn_bundle(ItemBundle::new(
+            &item.name,
             spawn_location,
             asset_server.load(item.icon.as_str()),
         ));
