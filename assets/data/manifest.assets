@@ -1,8 +1,0 @@
-({
-    "items": Files(
-        paths: [
-            "data/items/healing_potion.item",
-            "data/items/dungeon_map.item",
-        ]
-    )
-})

@@ -1,6 +1,6 @@
 (
     name: "Healing Potion",
-    texture_index: 33,
+    icon: "images/items/healing_potion.png",
     frequency: 0.003,
     effects: [Healing(6)],
 )
