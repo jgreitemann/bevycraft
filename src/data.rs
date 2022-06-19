@@ -28,8 +28,8 @@ struct DataAssets {
     #[asset(path = "PixeloidSans.ttf")]
     _font: Handle<Font>,
 
-    #[asset(path = "data/items", collection)]
-    _items: Vec<HandleUntyped>,
+    #[asset(key = "items", collection(typed))]
+    _items: Vec<Handle<ItemData>>,
 }
 
 pub struct DataPlugins;
@@ -48,6 +48,7 @@ impl Plugin for DataLoaderPlugin {
     fn build(&self, app: &mut App) {
         AssetLoader::new(TurnState::Loading)
             .continue_to_state(TurnState::NewGame)
+            .with_dynamic_asset_collection_file("data/manifest.assets")
             .with_collection::<DataAssets>()
             .build(app);
     }
