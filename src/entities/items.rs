@@ -18,7 +18,7 @@ pub struct CarriedBy(pub Entity);
 pub struct AmuletOfYala;
 
 #[derive(Bundle)]
-struct ItemBundle {
+pub struct ItemBundle {
     item: Item,
     position: Position,
     #[bundle]
@@ -26,7 +26,11 @@ struct ItemBundle {
 }
 
 impl ItemBundle {
-    fn new(position: Position, texture_index: usize, texture_atlas: &DefaultTextureAtlas) -> Self {
+    pub fn new(
+        position: Position,
+        texture_index: usize,
+        texture_atlas: &DefaultTextureAtlas,
+    ) -> Self {
         let DefaultTextureAtlas(atlas_handle) = texture_atlas;
         let world_pos = tile_center(&position);
         ItemBundle {

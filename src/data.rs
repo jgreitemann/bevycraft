@@ -16,20 +16,20 @@ pub enum EffectData {
 pub struct ItemData {
     pub name: String,
     pub texture_index: usize,
-    pub frequency: usize,
+    pub frequency: f32,
     pub effects: Vec<EffectData>,
 }
 
 #[derive(AssetCollection)]
 struct DataAssets {
     #[asset(path = "dungeonfont.png")]
-    texture_atlas: Handle<Image>,
+    _texture_atlas: Handle<Image>,
 
     #[asset(path = "PixeloidSans.ttf")]
-    font: Handle<Font>,
+    _font: Handle<Font>,
 
     #[asset(path = "data/items", collection)]
-    items: Vec<HandleUntyped>,
+    _items: Vec<HandleUntyped>,
 }
 
 pub struct DataPlugins;

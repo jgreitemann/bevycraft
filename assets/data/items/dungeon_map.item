@@ -1,0 +1,6 @@
+(
+    name: "Dungeon Map",
+    texture_index: 123,
+    frequency: 0.001,
+    effects: [],
+)

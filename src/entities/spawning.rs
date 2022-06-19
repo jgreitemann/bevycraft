@@ -54,14 +54,6 @@ fn spawn_entities(
     texture_atlas: Res<DefaultTextureAtlas>,
     item_data: Res<Assets<ItemData>>,
 ) {
-    info!(
-        "Items: {:?}",
-        item_data
-            .iter()
-            .map(|(_, item)| item.clone())
-            .collect::<Vec<_>>()
-    );
-
     const NUM_MONSTERS: usize = 50;
     const MIN_DISTANCE: f32 = 10f32;
 
@@ -86,20 +78,37 @@ fn spawn_entities(
     commands.spawn_bundle(AmuletBundle::new(amulet_start, texture_atlas.as_ref()));
 
     // Exclude the vicinity of the player from the spawnable set
-    let spawnable_locations: Vec<_> = spawnable_locations
+    let mut spawnable_locations: Vec<_> = spawnable_locations
         .into_iter()
         .filter(|&p: &Position| {
             DistanceAlg::Pythagoras.distance2d(p.into(), player_start.into()) > MIN_DISTANCE
         })
         .collect();
 
-    // Spawn monsters
     use rand::prelude::*;
     let mut rng = thread_rng();
-    for spawn_location in spawnable_locations
-        .choose_multiple(&mut rng, NUM_MONSTERS)
-        .cloned()
-    {
+    spawnable_locations.shuffle(&mut rng);
+
+    let location_count = spawnable_locations.len();
+    let mut spawnable_locations_iter = spawnable_locations.into_iter();
+
+    // Spawn items
+    for (item, spawn_location) in item_data.iter().flat_map(|(_, item)| {
+        spawnable_locations_iter
+            .by_ref()
+            .take((item.frequency * location_count as f32) as usize)
+            .map(|loc| (item, loc))
+            .collect::<Vec<_>>()
+    }) {
+        commands.spawn_bundle(ItemBundle::new(
+            spawn_location,
+            item.texture_index,
+            texture_atlas.as_ref(),
+        ));
+    }
+
+    // Spawn monsters
+    for spawn_location in spawnable_locations_iter.take(NUM_MONSTERS) {
         commands.spawn_bundle(HostileMobBundle::new(
             spawn_location,
             texture_atlas.as_ref(),
