@@ -1,0 +1,6 @@
+(
+    name: "Weak Healing Potion",
+    icon: "images/items/weak_healing_potion.png",
+    frequency: 0.003,
+    effects: [Healing(1)],
+)

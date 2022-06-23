@@ -1,6 +1,6 @@
 (
     name: "Healing Potion",
     icon: "images/items/healing_potion.png",
-    frequency: 0.003,
+    frequency: 0.002,
     effects: [Healing(6)],
 )
