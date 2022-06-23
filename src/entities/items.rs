@@ -4,7 +4,8 @@ pub struct ItemPlugin;
 
 impl Plugin for ItemPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(player_picks_up_items);
+        app.add_system(player_picks_up_items)
+            .add_system(consume_used_items);
     }
 }
 
@@ -13,6 +14,12 @@ pub struct Item;
 
 #[derive(Component, Debug, PartialEq)]
 pub struct CarriedBy(pub Entity);
+
+#[derive(Component, Debug)]
+pub struct Effects(pub Vec<EffectData>);
+
+#[derive(Component, Debug)]
+pub struct Used;
 
 #[derive(Component, Debug)]
 pub struct AmuletOfYala;
@@ -87,5 +94,18 @@ fn player_picks_up_items(
                 .insert(Visibility { is_visible: false })
                 .insert(CarriedBy(player_entity));
         }
+    }
+}
+
+fn consume_used_items(
+    mut commands: Commands,
+    item_query: Query<(Entity, &CarriedBy, &Effects), Added<Used>>,
+) {
+    for (item, &CarriedBy(carrier), effects) in item_query.iter() {
+        let mut carrier_commands = commands.entity(carrier);
+        for effect in &effects.0 {
+            apply_effect_to_mob(&mut carrier_commands, &effect);
+        }
+        commands.entity(item).despawn();
     }
 }

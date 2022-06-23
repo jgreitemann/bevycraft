@@ -1,14 +1,16 @@
 ({
     "data.items": Files(
         paths: [
-            "data/items/healing_potion.item",
             "data/items/dungeon_map.item",
+            "data/items/healing_potion.item",
+            "data/items/weak_healing_potion.item",
         ]
     ),
     "images.items": Files(
         paths: [
-            "images/items/healing_potion.png",
             "images/items/dungeon_map.png",
+            "images/items/healing_potion.png",
+            "images/items/weak_healing_potion.png",
         ]
     ),
 })

@@ -15,6 +15,7 @@ impl Plugin for HudPlugin {
                     .with_system(update_fps_hud)
                     .with_system(update_health_hud)
                     .with_system(add_newly_carried_item_to_inventory)
+                    .with_system(inventory_item_interaction)
                     .into(),
             );
     }
@@ -31,6 +32,9 @@ struct PlayerHealthText;
 
 #[derive(Component, Debug)]
 struct InventoryBar;
+
+#[derive(Component, Debug)]
+struct RepresentsItem(Entity);
 
 fn set_up_hud(
     mut commands: Commands,
@@ -139,12 +143,14 @@ fn populate_inventory<'w>(
                         ..default()
                     },
                     color: Color::NONE.into(),
-                    focus_policy: FocusPolicy::Block,
                     ..default()
                 })
+                .insert(RepresentsItem(inventory_item))
+                .insert(name.clone())
                 .with_children(|parent| {
                     parent.spawn_bundle(ImageBundle {
                         image: UiImage((*image).clone()),
+                        focus_policy: FocusPolicy::Pass,
                         ..default()
                     });
                 });
@@ -166,6 +172,21 @@ fn add_newly_carried_item_to_inventory(
         .with_children(|parent| {
             populate_inventory(parent, player_query.iter().next(), new_items_query.iter());
         });
+}
+
+fn inventory_item_interaction(
+    mut commands: Commands,
+    interaction_query: Query<
+        (Entity, &Interaction, &RepresentsItem),
+        (Changed<Interaction>, With<Button>),
+    >,
+) {
+    for (inventory_item, &interaction, &RepresentsItem(item)) in interaction_query.iter() {
+        if interaction == Interaction::Clicked {
+            commands.entity(item).insert(Used);
+            commands.entity(inventory_item).despawn_recursive();
+        }
+    }
 }
 
 fn tear_down_hud(mut commands: Commands, hud_query: Query<Entity, With<HudItem>>) {

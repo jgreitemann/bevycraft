@@ -1,6 +1,7 @@
 mod ai;
 mod avatar;
 mod combat;
+mod effects;
 mod fov;
 mod items;
 mod mobs;
@@ -15,6 +16,7 @@ use combat::*;
 use fov::*;
 use mobs::*;
 
+pub use effects::*;
 pub use fov::FieldOfView;
 pub use items::*;
 pub use mobs::{HostileMobBundle, PlayerBundle};
@@ -31,6 +33,7 @@ impl PluginGroup for EntityPlugins {
             .add(FieldOfViewPlugin)
             .add(AvatarPlugin)
             .add(ItemPlugin)
+            .add(EffectsPlugin)
             .add(EntitySpawningPlugin);
     }
 }

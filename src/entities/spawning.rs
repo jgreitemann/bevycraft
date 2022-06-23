@@ -101,11 +101,13 @@ fn spawn_entities(
             .map(|loc| (item, loc))
             .collect::<Vec<_>>()
     }) {
-        commands.spawn_bundle(ItemBundle::new(
-            &item.name,
-            spawn_location,
-            asset_server.load(item.icon.as_str()),
-        ));
+        commands
+            .spawn_bundle(ItemBundle::new(
+                &item.name,
+                spawn_location,
+                asset_server.load(item.icon.as_str()),
+            ))
+            .insert(Effects(item.effects.clone()));
     }
 
     // Spawn monsters
