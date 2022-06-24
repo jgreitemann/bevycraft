@@ -9,6 +9,7 @@ use serde::Deserialize;
 #[derive(Clone, Debug, Deserialize)]
 pub enum EffectData {
     Healing(u32),
+    RevealMap,
 }
 
 #[derive(Clone, Debug, Deserialize, TypeUuid)]
