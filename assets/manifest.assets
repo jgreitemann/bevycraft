@@ -6,6 +6,12 @@
             "data/items/weak_healing_potion.item",
         ]
     ),
+    "data.biomes": Files(
+        paths: [
+            "data/biomes/dungeon.biome",
+            "data/biomes/forest.biome",
+        ]
+    ),
     "images.items": Files(
         paths: [
             "images/items/dungeon_map.png",

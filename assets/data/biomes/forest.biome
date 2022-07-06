@@ -1,0 +1,8 @@
+(
+    name: "Forest",
+    levels: [0],
+    tile_textures: {
+        Floor: 59,
+        Wall: 34,
+    }
+)

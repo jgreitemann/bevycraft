@@ -1,0 +1,8 @@
+(
+    name: "Dungeon",
+    levels: [0],
+    tile_textures: {
+        Floor: 46,
+        Wall: 35,
+    }
+)
