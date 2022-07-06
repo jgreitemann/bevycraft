@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use std::collections::HashMap;
 
 use bevy::app::PluginGroupBuilder;
 use bevy::reflect::TypeUuid;
@@ -21,6 +22,14 @@ pub struct ItemData {
     pub effects: Vec<EffectData>,
 }
 
+#[derive(Clone, Debug, Deserialize, TypeUuid)]
+#[uuid = "0f8f2dfb-6fba-4f34-b258-358b9438e3f9"]
+pub struct BiomeData {
+    pub name: String,
+    pub levels: Vec<usize>,
+    pub tile_textures: HashMap<TileType, u16>,
+}
+
 #[derive(AssetCollection)]
 struct DataAssets {
     #[asset(path = "dungeonfont.png")]
@@ -32,6 +41,9 @@ struct DataAssets {
     #[asset(key = "data.items", collection(typed))]
     _item_data: Vec<Handle<ItemData>>,
 
+    #[asset(key = "data.biomes", collection(typed))]
+    _biome_data: Vec<Handle<BiomeData>>,
+
     #[asset(key = "images.items", collection(typed))]
     _item_images: Vec<Handle<Image>>,
 }
@@ -42,6 +54,7 @@ impl PluginGroup for DataPlugins {
     fn build(&mut self, group: &mut PluginGroupBuilder) {
         group
             .add(RonAssetPlugin::<ItemData>::new(&["item"]))
+            .add(RonAssetPlugin::<BiomeData>::new(&["biome"]))
             .add(DataLoaderPlugin);
     }
 }

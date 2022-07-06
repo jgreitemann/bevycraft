@@ -3,8 +3,10 @@ mod mouse;
 mod query_adapter;
 
 use crate::prelude::*;
-use map_builder::*;
+use rand::{seq::SliceRandom, thread_rng};
+use serde::Deserialize;
 
+use map_builder::*;
 pub use query_adapter::*;
 
 pub const MAP_SIZE: MapSize = MapSize(10, 6);
@@ -31,11 +33,13 @@ pub fn tile_center(Position(vec): &Position) -> Vec3 {
     )
 }
 
-#[derive(Copy, Clone, Component, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Component, Debug, Hash, Eq, PartialEq, Deserialize)]
 pub enum TileType {
     Wall,
     Floor,
 }
+
+struct CurrentBiome(Option<BiomeData>);
 
 pub struct MapPlugin;
 
@@ -43,6 +47,7 @@ impl Plugin for MapPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(TilemapPlugin)
             .insert_resource(ClearColor(Color::BLACK))
+            .insert_resource(CurrentBiome(None))
             .add_enter_system(TurnState::NewGame, spawn_map_layer)
             .add_event::<mouse::TileInteraction>()
             .add_system(
@@ -80,9 +85,16 @@ fn spawn_map_layer(
     mut commands: Commands,
     mut map_query: MapQuery,
     asset_server: Res<AssetServer>,
+    biomes: Res<Assets<BiomeData>>,
 ) {
     // Despawn the map in case of game reset
     map_query.despawn(&mut commands, MAP_ID);
+
+    // Pick a random biome for now
+    let mut rng = thread_rng();
+    let biome_data: Vec<_> = biomes.iter().map(|(_, data)| data).collect();
+    let biome = biome_data.choose(&mut rng).cloned();
+    commands.insert_resource(CurrentBiome(biome.cloned()));
 
     let texture_handle = asset_server.load("dungeonfont.png");
 
@@ -106,7 +118,9 @@ fn spawn_map_layer(
             tile_type,
             tilemap_bundle: TileBundle {
                 tile: Tile {
-                    texture_index: lookup_texture_index(tile_type),
+                    texture_index: biome
+                        .and_then(|biome| biome.tile_textures.get(&tile_type).cloned())
+                        .unwrap_or(176),
                     visible: false,
                     ..default()
                 },
@@ -142,16 +156,12 @@ fn spawn_map_layer(
 fn sync_tiles(
     mut tile_query: Query<(&TileType, &TilePos, &mut Tile), Or<(Changed<TileType>, Changed<Tile>)>>,
     mut map_query: MapQuery,
+    current_biome: Res<CurrentBiome>,
 ) {
-    for (tile_type, tile_pos, mut tile) in tile_query.iter_mut() {
-        tile.texture_index = lookup_texture_index(*tile_type);
-        map_query.notify_chunk_for_tile(*tile_pos, MAP_ID, MAP_LAYER_ID);
-    }
-}
-
-fn lookup_texture_index(tile_type: TileType) -> u16 {
-    match tile_type {
-        TileType::Wall => 35,
-        TileType::Floor => 46,
+    if let CurrentBiome(Some(biome)) = current_biome.as_ref() {
+        for (tile_type, tile_pos, mut tile) in tile_query.iter_mut() {
+            tile.texture_index = biome.tile_textures.get(tile_type).cloned().unwrap_or(176);
+            map_query.notify_chunk_for_tile(*tile_pos, MAP_ID, MAP_LAYER_ID);
+        }
     }
 }
